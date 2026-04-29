@@ -6,7 +6,7 @@ import Footer from '../../components/client/shared/Footer';
 
 const Home = () => {
     return (
-        <div>
+        <div className="min-h-screen bg-[#fffaf6]">
             <Header />
             <Banner />
             <SpecialOffer />
@@ -16,3 +16,4 @@ const Home = () => {
 };
 
 export default Home;
+

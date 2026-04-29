@@ -15,3 +15,7 @@ export { default as AdminSettings } from './AdminSettings.jsx';
 
 export { default as Roles } from './Roles.jsx';
 export { default as AdminInventory } from './AdminInventory.jsx';
+export { default as StaffManagement } from './StaffManagement.jsx';
+export { default as ShiftManagement } from './ShiftManagement.jsx';
+export { default as StaffSchedule } from './StaffSchedule.jsx';
+export { default as AttendanceManagement } from './AttendanceManagement.jsx';

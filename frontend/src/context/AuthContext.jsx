@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useState, useEffect, useMemo, useCallback } from 'react';
 import { loginAdminApi } from '../service/authApi.service';
 
 const AuthContext = createContext(null);
@@ -9,17 +9,21 @@ export const AuthProvider = ({ children }) => {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const storedToken = localStorage.getItem('admin_token');
-        const storedUser = localStorage.getItem('admin_user');
+        const storedToken = sessionStorage.getItem('admin_token');
+        const storedUser = sessionStorage.getItem('admin_user');
 
         if (storedToken && storedUser) {
-            setToken(storedToken);
-            setUser(JSON.parse(storedUser));
+            try {
+                setToken(storedToken);
+                setUser(JSON.parse(storedUser));
+            } catch (e) {
+                console.error("Failed to parse stored user", e);
+            }
         }
         setLoading(false);
     }, []);
 
-    const login = async (credentials) => {
+    const login = useCallback(async (credentials) => {
         try {
             const response = await loginAdminApi(credentials);
             const { token: authToken, account } = response.data;
@@ -27,24 +31,25 @@ export const AuthProvider = ({ children }) => {
             setToken(authToken);
             setUser(account);
 
-            localStorage.setItem('admin_token', authToken);
-            localStorage.setItem('admin_user', JSON.stringify(account));
+            sessionStorage.setItem('admin_token', authToken);
+            sessionStorage.setItem('admin_user', JSON.stringify(account));
 
             return { success: true };
         } catch (error) {
             const message = error.response?.data?.message || 'Đăng nhập thất bại';
             throw new Error(message);
         }
-    };
+    }, []);
 
-    const logout = () => {
+    const logout = useCallback(() => {
         setToken(null);
         setUser(null);
-        localStorage.removeItem('admin_token');
-        localStorage.removeItem('admin_user');
-    };
+        sessionStorage.removeItem('admin_token');
+        sessionStorage.removeItem('admin_user');
+    }, []);
 
-    const value = {
+    // 🚀 Performance: Memoize the context value to prevent unnecessary cascade re-renders
+    const value = useMemo(() => ({
         user,
         token,
         login,
@@ -52,7 +57,7 @@ export const AuthProvider = ({ children }) => {
         roleName: (user?.roleId?.name || user?.roleName || '').toString(),
         isAuthenticated: !!token,
         loading,
-    };
+    }), [user, token, login, logout, loading]);
 
     return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
@@ -64,3 +69,4 @@ export const useAuth = () => {
     }
     return context;
 };
+

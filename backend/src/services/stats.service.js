@@ -1,4 +1,5 @@
-import Order from '../../models/Order.js';
+import Invoice from '../../models/Invoice.js';
+import InvoiceArchive from '../../models/InvoiceArchive.js';
 
 export const getRevenue = async ({ type, year, month }) => {
     if (!type) throw new Error('Missing type');
@@ -60,21 +61,29 @@ export const getRevenue = async ({ type, year, month }) => {
         }));
     }
 
-    const results = await Order.aggregate([
+    const match = {
+        paymentStatus: { $in: ['paid', 'Đã thanh toán', 'closed'] },
+        createdAt: { $gte: start, $lt: end },
+    };
+    const formatId = groupId;
+
+    const pipeline = [
+        { $match: match },
         {
-            $match: {
-                status: { $in: ['pending', 'paid'] },
-                createdAt: { $gte: start, $lt: end },
-            },
+            $unionWith: {
+                coll: 'invoicearchives',
+                pipeline: [{ $match: match }]
+            }
         },
         {
             $group: {
-                _id: groupId,
+                _id: formatId,
                 revenue: { $sum: '$totalPrice' },
-                totalOrders: { $sum: 1 },
-            },
+                totalOrders: { $sum: 1 }, // Changed 'count' to 'totalOrders' to match original logic
+                timestamp: { $min: '$createdAt' }
+            }
         },
-        { $sort: { _id: 1 } },
+        { $sort: { timestamp: 1 } },
         {
             $project: {
                 _id: 0,
@@ -83,8 +92,10 @@ export const getRevenue = async ({ type, year, month }) => {
                 totalOrders: 1,
             },
         },
-    ]);
+    ];
 
+    const results = await Invoice.aggregate(pipeline);
+    
     // Merge results with complete data
     results.forEach((item) => {
         const index = completeData.findIndex((d) => d.label === item.label);

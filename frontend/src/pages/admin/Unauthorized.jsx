@@ -7,9 +7,9 @@ export default function Unauthorized() {
 
     return (
         <div className="min-h-screen flex items-center justify-center p-6">
-            <div className="max-w-md w-full bg-white border border-border rounded-2xl p-8 shadow-lg">
-                <h1 className="text-xl font-semibold text-slate-900">Không có quyền truy cập</h1>
-                <p className="mt-2 text-sm text-slate-600">
+            <div className="max-w-md w-full bg-white dark:bg-slate-900 border border-border dark:border-slate-800 rounded-2xl p-8 shadow-lg">
+                <h1 className="text-xl font-semibold text-slate-900 dark:text-white">Không có quyền truy cập</h1>
+                <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
                     Tài khoản của bạn không được cấp quyền để mở trang này.
                 </p>
                 <div className="mt-6 flex gap-3">
@@ -21,7 +21,7 @@ export default function Unauthorized() {
                     </Link>
                     <Link
                         to="/admin"
-                        className="px-4 py-2 rounded-lg border border-slate-200 text-slate-700 text-sm font-medium hover:bg-slate-50"
+                        className="px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-200 text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-800"
                     >
                         Về trang đăng nhập
                     </Link>

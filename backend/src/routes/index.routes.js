@@ -12,6 +12,10 @@ import roleRoutes from './role.routes.js';
 import notificationRoutes from './notification.routes.js';
 import supplierRoutes from './supplier.routes.js';
 import importRoutes from './imports.routes.js';
+import vnpayRoutes from './vnpay.routes.js';
+import staffRoutes from './staff.routes.js';
+import shiftRoutes from './shift.routes.js';
+import logRoutes from './log.routes.js';
 
 function routes(app) {
     app.use('/api/tables', TableRoutes);
@@ -28,6 +32,11 @@ function routes(app) {
     app.use('/api/notifications', notificationRoutes);
     app.use('/api/suppliers', supplierRoutes);
     app.use('/api/imports', importRoutes);
+    app.use('/api/vnpay', vnpayRoutes);
+    app.use('/api/staff', staffRoutes);
+    app.use('/api/shifts', shiftRoutes);
+    app.use('/api/logs', logRoutes);
+    app.use('/api/reports', statsRoute);
 }
 
 export default routes;

@@ -58,3 +58,4 @@ const QRCodeModal = ({ table, onClose }) => {
 };
 
 export default QRCodeModal;
+

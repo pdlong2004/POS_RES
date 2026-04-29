@@ -1,14 +1,10 @@
-'use client';
-
-import React, { useState } from 'react';
+import React, { useState, memo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Eye, EyeOff, Loader2, Lock, User } from 'lucide-react';
-import { Label } from '@/components/ui/label';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
+import { Eye, EyeOff, Loader2, Lock, User, ShieldCheck, Check } from 'lucide-react';
 import { useAuth } from '../../../context/AuthContext';
+import { cn } from '@/lib/utils';
 
-export default function LoginForm() {
+const LoginForm = () => {
     const navigate = useNavigate();
     const { login } = useAuth();
     const [showPassword, setShowPassword] = useState(false);
@@ -18,7 +14,6 @@ export default function LoginForm() {
         email: '',
         password: '',
     });
-
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -36,34 +31,34 @@ export default function LoginForm() {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center p-4">
-            <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl" />
-                <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl" />
-            </div>
+        <div className="min-h-screen flex items-center justify-center p-4 bg-[#09090b]/40 backdrop-blur-sm">
+            <div className="w-full max-w-md animate-in fade-in zoom-in-95 duration-500">
+                <div className="bg-[#18181b] border border-[#27272a] rounded-3xl p-8 shadow-2xl">
+                    <div className="text-center mb-10">
+                        <div className="w-16 h-16 bg-orange-500 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg shadow-orange-500/20">
+                            <span className="text-white font-black text-3xl">M</span>
+                        </div>
+                        <h1 className="text-2xl font-bold text-white tracking-tight">Admin Login</h1>
+                        <p className="text-[#71717a] mt-1 text-sm">Hệ thống quản trị Manwah POS</p>
+                    </div>
 
-            <div className="w-full max-w-md relative">
-                <div className="bg-card border border-border rounded-2xl p-8 shadow-2xl">
                     <form onSubmit={handleSubmit} className="space-y-6">
                         {error && (
-                            <div className="p-3 rounded-lg bg-destructive/10 border border-destructive/20 text-destructive text-sm">
+                            <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-500 text-xs font-bold text-center">
                                 {error}
                             </div>
                         )}
 
                         <div className="space-y-2">
-                            <Label htmlFor="email" className="text-foreground">
-                                Email hoặc Số điện thoại
-                            </Label>
-                            <div className="relative">
-                                <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-                                <Input
-                                    id="email"
+                            <label className="text-xs font-bold text-[#a1a1aa] ml-1">Email</label>
+                            <div className="relative group">
+                                <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#52525b] group-focus-within:text-orange-500 transition-colors" />
+                                <input
                                     type="text"
-                                    placeholder="admin@example.com"
+                                    placeholder="admin@manwah.com"
                                     value={formData.email}
                                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                                    className="pl-10 h-12 bg-input border-border focus:border-primary focus:ring-primary"
+                                    className="w-full h-12 bg-[#09090b] border border-[#27272a] rounded-xl pl-11 pr-4 text-white text-sm focus:border-orange-500 outline-none transition-all"
                                     required
                                     disabled={isLoading}
                                 />
@@ -71,59 +66,55 @@ export default function LoginForm() {
                         </div>
 
                         <div className="space-y-2">
-                            <Label htmlFor="password" className="text-foreground">
-                                Mật khẩu
-                            </Label>
-                            <div className="relative">
-                                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-                                <Input
-                                    id="password"
+                            <label className="text-xs font-bold text-[#a1a1aa] ml-1">Mật khẩu</label>
+                            <div className="relative group">
+                                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#52525b] group-focus-within:text-orange-500 transition-colors" />
+                                <input
                                     type={showPassword ? 'text' : 'password'}
                                     placeholder="••••••••"
                                     value={formData.password}
                                     onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                                    className="pl-10 pr-10 h-12 bg-input border-border focus:border-primary focus:ring-primary"
+                                    className="w-full h-12 bg-[#09090b] border border-[#27272a] rounded-xl pl-11 pr-11 text-white text-sm focus:border-orange-500 outline-none transition-all"
                                     required
                                     disabled={isLoading}
                                 />
                                 <button
                                     type="button"
                                     onClick={() => setShowPassword(!showPassword)}
-                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                                    className="absolute right-4 top-1/2 -translate-y-1/2 text-[#52525b] hover:text-white transition-colors p-1"
                                     tabIndex={-1}
                                 >
-                                    {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                                 </button>
                             </div>
                         </div>
 
-                        <div className="flex items-center justify-between">
-                            <label className="flex items-center gap-2 cursor-pointer">
-                                <input
-                                    type="checkbox"
-                                    className="w-4 h-4 rounded border-border bg-input text-primary focus:ring-primary focus:ring-offset-0"
-                                />
-                                <span className="text-sm text-muted-foreground">Ghi nhớ đăng nhập</span>
-                            </label>
-                        </div>
-
-                        <Button
+                        <button
                             type="submit"
-                            className="w-full h-12 bg-primary hover:bg-primary/90 text-primary-foreground font-medium"
+                            className="w-full h-12 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-xl shadow-lg shadow-orange-500/20 transition-all active:scale-95 flex items-center justify-center gap-2"
                             disabled={isLoading}
                         >
                             {isLoading ? (
-                                <>
-                                    <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                                    Đang đăng nhập...
-                                </>
+                                <Loader2 className="w-5 h-5 animate-spin" />
                             ) : (
-                                'Đăng nhập'
+                                <>
+                                    <ShieldCheck size={18} />
+                                    Đăng nhập
+                                </>
                             )}
-                        </Button>
+                        </button>
                     </form>
+
+                    <div className="mt-8 pt-6 border-t border-[#27272a] text-center">
+                        <p className="text-[10px] text-[#52525b] font-medium uppercase tracking-widest">
+                            © 2024 Manwah POS. All Rights Reserved.
+                        </p>
+                    </div>
                 </div>
             </div>
         </div>
     );
-}
+};
+
+export default memo(LoginForm);
+

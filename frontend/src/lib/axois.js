@@ -12,8 +12,8 @@ api.interceptors.request.use(
         const isAdminApp = path.startsWith('/admin');
         const isTableAuth = config.url?.includes('table-auth');
 
-        const adminToken = localStorage.getItem('admin_token');
-        const tableToken = localStorage.getItem('tableToken');
+        const adminToken = sessionStorage.getItem('admin_token');
+        const tableToken = sessionStorage.getItem('tableToken');
         const legacyToken = localStorage.getItem('token');
 
         const tokenToUse = isTableAuth ? tableToken : isAdminApp ? adminToken : tableToken || legacyToken || adminToken;
@@ -37,11 +37,11 @@ api.interceptors.response.use(
 
             if (!isTableAuth && !isAdminLogin) {
                 if (isAdminApp) {
-                    localStorage.removeItem('admin_token');
-                    localStorage.removeItem('admin_user');
+                    sessionStorage.removeItem('admin_token');
+                    sessionStorage.removeItem('admin_user');
                     window.location.href = '/admin';
                 } else {
-                    localStorage.removeItem('tableToken');
+                    sessionStorage.removeItem('tableToken');
                 }
             }
         }

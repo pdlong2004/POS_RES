@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { getBookingsApi, updateBookingApi, cancelBookingApi } from '@/service/bookingApi.service';
-import HeaderAdmin from '@/components/admin/shared/HeaderAdmin';
-import SidebarAdmin from '@/components/admin/shared/SidebarAdmin';
+import AdminLayout from '@/components/admin/shared/AdminLayout';
+import AdminLoading from '@/components/admin/shared/AdminLoading';
 import {
     Calendar,
     Clock,
@@ -15,9 +15,22 @@ import {
     Filter,
     Edit2,
     ChevronRight,
+    RefreshCw,
+    MessageSquare,
+    ChevronLeft,
+    CheckCircle2,
+    AlertCircle,
+    LayoutGrid,
+    Zap,
+    MapPin,
+    ArrowRight,
+    Settings,
 } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { useToast } from '@/context/ToastContext';
 
 const AdminBookings = () => {
+    const { toast } = useToast();
     const [bookings, setBookings] = useState([]);
     const [loading, setLoading] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
@@ -27,49 +40,56 @@ const AdminBookings = () => {
     const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [editFormData, setEditFormData] = useState(null);
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
-    const fetchBookings = async () => {
+    const fetchData = async () => {
         setLoading(true);
         try {
             const res = await getBookingsApi();
             if (res.data?.success) setBookings(res.data.data || []);
         } catch (err) {
             console.error('Fetch bookings error', err);
+            toast.error('Không thể tải danh sách đặt bàn');
         } finally {
             setLoading(false);
         }
     };
 
     useEffect(() => {
-        fetchBookings();
+        fetchData();
     }, []);
 
     const handleUpdateStatus = async (id, status) => {
         try {
             await updateBookingApi(id, { status });
-            fetchBookings();
+            toast.success(`Đã cập nhật trạng thái: ${getStatusLabel(status)}`);
+            fetchData();
         } catch (err) {
             console.error('Update status error', err);
+            toast.error('Cập nhật trạng thái thất bại');
         }
     };
 
     const handleCancel = async (id) => {
+        if (!window.confirm('Bạn có chắc chắn muốn hủy đặt bàn này?')) return;
         try {
             await cancelBookingApi(id);
-            fetchBookings();
+            toast.success('Đã hủy lịch đặt bàn');
+            fetchData();
         } catch (err) {
             console.error('Cancel booking error', err);
+            toast.error('Hủy đặt bàn thất bại');
         }
     };
 
-    const getStatusBadge = (status) => {
+    const getStatusStyles = (status) => {
         const styles = {
-            pending: 'bg-amber-100 text-amber-800',
-            confirmed: 'bg-emerald-100 text-emerald-800',
-            completed: 'bg-blue-100 text-blue-800',
-            cancelled: 'bg-red-100 text-red-800',
+            pending: 'bg-amber-50 text-amber-600 border-amber-100',
+            confirmed: 'bg-orange-50 text-orange-600 border-orange-100',
+            completed: 'bg-emerald-50 text-emerald-600 border-emerald-100',
+            cancelled: 'bg-rose-50 text-rose-600 border-rose-100',
         };
-        return styles[status] || 'bg-slate-100 text-slate-800';
+        return styles[status] || 'bg-slate-50 text-slate-500 border-slate-100';
     };
 
     const getStatusLabel = (status) => {
@@ -113,538 +133,424 @@ const AdminBookings = () => {
     };
 
     const handleSaveEdit = async () => {
+        setIsSubmitting(true);
         try {
             await updateBookingApi(editFormData._id, editFormData);
+            toast.success('Đã cập nhật thông tin đặt bàn');
             setIsEditModalOpen(false);
-            fetchBookings();
+            fetchData();
         } catch (err) {
             console.error('Update booking error', err);
+            toast.error('Cập nhật thất bại');
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
     return (
-        <div className="min-h-screen bg-linear-to-br from-slate-50 to-slate-100">
-            <HeaderAdmin />
-
-            <div className="flex">
-                <SidebarAdmin />
-
-                <main className="flex-1 container mx-auto px-6 py-8">
-                    <div className="mb-8">
-                        <h1 className="text-3xl font-bold text-slate-900 mb-2">Quản lý đặt bàn</h1>
-                        <p className="text-slate-600">Theo dõi và quản lý các đặt bàn của khách hàng</p>
+        <AdminLayout className="space-y-10">
+            {/* PAGE HEADER */}
+            <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 animate-in fade-in slide-in-from-top-4 duration-700">
+                <div className="space-y-1">
+                    <h1 className="text-4xl font-black tracking-tight text-slate-900 dark:text-white">Lịch đặt chỗ</h1>
+                    <p className="text-slate-500 dark:text-slate-400 font-bold text-sm">
+                        Quản lý ma trận đặt bàn và điều phối không gian đón tiếp khách hàng.
+                    </p>
+                </div>
+                <div className="flex items-center gap-4 w-full lg:w-auto">
+                    <button
+                        onClick={fetchData}
+                        className="admin-btn-secondary w-12 h-12 flex items-center justify-center p-0 dark:bg-zinc-900/50 dark:border-zinc-800"
+                        title="Làm mới"
+                    >
+                        <RefreshCw size={18} className={cn(loading && 'animate-spin')} />
+                    </button>
+                    <div className="flex items-center gap-2 text-xs font-black text-orange-600 dark:text-orange-400 bg-orange-50 dark:bg-orange-950/20 px-6 py-3 rounded-2xl border border-orange-100 dark:border-orange-900/30 uppercase tracking-widest">
+                        <Zap size={14} /> Live
                     </div>
+                </div>
+            </div>
 
-                    {/* Filters Section */}
-                    <div className="mb-8 bg-white rounded-lg shadow-sm border border-slate-200 p-6">
-                        <h2 className="text-lg font-semibold text-slate-900 mb-4">Tìm kiếm và lọc</h2>
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <div>
-                                <label className="block text-sm font-medium text-slate-700 mb-2">Tìm kiếm</label>
-                                <div className="relative">
-                                    <Search className="absolute left-3 top-3 text-slate-400" size={18} />
-                                    <input
-                                        type="text"
-                                        placeholder="Tên khách hoặc SĐT..."
-                                        value={searchQuery}
-                                        onChange={(e) => setSearchQuery(e.target.value)}
-                                        className="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                                    />
-                                </div>
-                            </div>
-
-                            <div>
-                                <label className="block text-sm font-medium text-slate-700 mb-2">Trạng thái</label>
-                                <select
-                                    value={statusFilter}
-                                    onChange={(e) => setStatusFilter(e.target.value)}
-                                    className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                                >
-                                    <option value="">Tất cả trạng thái</option>
-                                    <option value="pending">Chờ xác nhận</option>
-                                    <option value="confirmed">Đã xác nhận</option>
-                                    <option value="completed">Hoàn thành</option>
-                                    <option value="cancelled">Đã hủy</option>
-                                </select>
-                            </div>
-
-                            <div>
-                                <label className="block text-sm font-medium text-slate-700 mb-2">Ngày</label>
-                                <input
-                                    type="date"
-                                    value={dateFilter}
-                                    onChange={(e) =>
-                                        setDateFilter(
-                                            e.target.value ? new Date(e.target.value).toLocaleDateString('vi-VN') : '',
-                                        )
-                                    }
-                                    className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                                />
-                            </div>
-                        </div>
-
-                        {(searchQuery || statusFilter || dateFilter) && (
-                            <div className="mt-4 pt-4 border-t border-slate-200">
-                                <p className="text-sm text-slate-600">
-                                    Kết quả:{' '}
-                                    <span className="font-semibold text-slate-900">{filteredBookings.length}</span> đặt
-                                    bàn
-                                    {searchQuery && ` (tìm: "${searchQuery}")`}
-                                    {statusFilter && ` (trạng thái: ${getStatusLabel(statusFilter)})`}
-                                    {dateFilter && ` (ngày: ${dateFilter})`}
-                                </p>
-                            </div>
-                        )}
+            {/* FILTERS BAR */}
+            <div className="admin-card p-6 border-white/20 dark:border-zinc-800/50 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-100 bg-white/50 dark:bg-zinc-900/50">
+                <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
+                    <div className="md:col-span-5 relative group">
+                        <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 dark:text-slate-600 group-focus-within:text-orange-600 dark:group-focus-within:text-orange-500 transition-colors" />
+                        <input
+                            type="text"
+                            placeholder="Tìm kiếm khách hàng..."
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            className="admin-input pl-12 h-14 bg-white/50 dark:bg-zinc-900 border-white dark:border-zinc-800 text-slate-900 dark:text-white"
+                        />
                     </div>
+                    <div className="md:col-span-4 relative">
+                        <select
+                            value={statusFilter}
+                            onChange={(e) => setStatusFilter(e.target.value)}
+                            className="admin-input h-14 bg-white/50 dark:bg-zinc-900 border-white dark:border-zinc-800 appearance-none cursor-pointer font-bold text-xs uppercase tracking-widest px-6 text-slate-900 dark:text-white"
+                        >
+                            <option value="">Tất cả trạng thái</option>
+                            <option value="pending">Chờ xác nhận</option>
+                            <option value="confirmed">Đã xác nhận</option>
+                            <option value="completed">Hoàn tất phục vụ</option>
+                            <option value="cancelled">Đã hủy bỏ</option>
+                        </select>
+                        <div className="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+                            <Filter size={14} />
+                        </div>
+                    </div>
+                    <div className="md:col-span-3">
+                        <input
+                            type="date"
+                            onChange={(e) =>
+                                setDateFilter(
+                                    e.target.value
+                                        ? new Date(e.target.value).toLocaleDateString('vi-VN')
+                                        : '',
+                                )
+                            }
+                            className="admin-input h-14 bg-white/50 dark:bg-zinc-900 border-white dark:border-zinc-800 font-bold uppercase tracking-widest text-xs text-slate-900 dark:text-white"
+                        />
+                    </div>
+                </div>
+            </div>
 
-                    {loading ? (
-                        <div className="flex items-center justify-center py-16">
-                            <div className="text-center">
-                                <Loader2 className="mx-auto mb-4 text-orange-500 animate-spin" size={32} />
-                                <p className="text-slate-600">Đang tải danh sách đặt bàn...</p>
-                            </div>
+            {/* CONTENT GRID */}
+            <div className="animate-in fade-in slide-in-from-bottom-4 duration-700 delay-200">
+                {loading ? (
+                    <div className="py-32 flex flex-col items-center justify-center gap-4">
+                        <RefreshCw className="h-8 w-8 text-orange-600 dark:text-orange-500 animate-spin" />
+                        <p className="text-slate-400 dark:text-slate-500 font-bold uppercase tracking-widest text-xs animate-pulse">
+                            Đang tải dữ liệu...
+                        </p>
+                    </div>
+                ) : filteredBookings.length === 0 ? (
+                    <div className="admin-card py-32 flex flex-col items-center justify-center bg-white/30 dark:bg-zinc-900/30 border-white dark:border-zinc-800 rounded-[3rem]">
+                        <div className="w-24 h-24 bg-white dark:bg-zinc-800 rounded-full flex items-center justify-center mb-8 border border-white dark:border-zinc-800 shadow-xl dark:shadow-none opacity-30">
+                            <Calendar size={48} strokeWidth={1} className="text-slate-900 dark:text-white" />
                         </div>
-                    ) : bookings.length === 0 ? (
-                        <div className="text-center py-16 bg-white rounded-lg border border-slate-200">
-                            <Calendar className="mx-auto mb-4 text-slate-400" size={32} />
-                            <p className="text-slate-600 text-lg">Chưa có đặt bàn nào</p>
-                            <p className="text-slate-500 text-sm mt-1">Các đặt bàn sẽ xuất hiện ở đây</p>
-                        </div>
-                    ) : filteredBookings.length === 0 ? (
-                        <div className="text-center py-16 bg-white rounded-lg border border-slate-200">
-                            <Filter className="mx-auto mb-4 text-slate-400" size={32} />
-                            <p className="text-slate-600 text-lg">Không tìm thấy đặt bàn</p>
-                            <p className="text-slate-500 text-sm mt-1">Thử điều chỉnh bộ lọc của bạn</p>
-                        </div>
-                    ) : (
-                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                            {filteredBookings.map((booking) => (
-                                <div
-                                    key={booking._id}
-                                    className="bg-white rounded-lg shadow-sm border border-slate-200 hover:shadow-lg transition-shadow duration-200 overflow-hidden"
-                                >
-                                    <div className="p-6">
-                                        <div className="flex items-start justify-between mb-4">
-                                            <div className="flex-1">
-                                                <h3 className="text-lg font-bold text-slate-900">
-                                                    {booking.customerName}
-                                                </h3>
-                                                <div
-                                                    className={`inline-block px-3 py-1 rounded-full text-sm font-semibold mt-2 ${getStatusBadge(booking.status)}`}
+                        <p className="text-slate-900 dark:text-white font-black uppercase tracking-widest text-base">
+                            Không tìm thấy dữ liệu
+                        </p>
+                    </div>
+                ) : (
+                    <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
+                        {filteredBookings.map((booking) => (
+                            <div
+                                key={booking._id}
+                                className="admin-card group hover:border-orange-400/40 dark:hover:border-orange-900 transition-all duration-500 overflow-hidden bg-white/50 dark:bg-zinc-900/50 border-white/40 dark:border-zinc-800/50"
+                            >
+                                <div className="p-8 space-y-8">
+                                    <div className="flex items-start justify-between gap-6">
+                                        <div className="min-w-0">
+                                            <h3 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight group-hover:text-orange-600 dark:group-hover:text-orange-500 transition-colors truncate">
+                                                {booking.customerName}
+                                            </h3>
+                                            <div className="flex items-center gap-3 mt-4">
+                                                <span
+                                                    className={cn(
+                                                        'px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border',
+                                                        getStatusStyles(booking.status),
+                                                    )}
                                                 >
                                                     {getStatusLabel(booking.status)}
-                                                </div>
-                                            </div>
-                                            <button
-                                                onClick={() => handleEditClick(booking)}
-                                                className="p-2 text-slate-600 hover:text-orange-600 hover:bg-orange-50 rounded-lg transition-colors"
-                                                title="Chỉnh sửa"
-                                            >
-                                                <Edit2 size={18} />
-                                            </button>
-                                        </div>
-
-                                        <div className="grid grid-cols-2 gap-4 mb-6 pb-6 border-b border-slate-100">
-                                            <div className="flex items-center gap-3">
-                                                <div className="p-2 bg-orange-100 rounded-lg">
-                                                    <Calendar size={18} className="text-orange-600" />
-                                                </div>
-                                                <div>
-                                                    <p className="text-xs text-slate-500 font-medium">Ngày</p>
-                                                    <p className="text-sm font-semibold text-slate-900">
-                                                        {new Date(booking.bookingDate).toLocaleDateString('vi-VN')}
-                                                    </p>
-                                                </div>
-                                            </div>
-
-                                            <div className="flex items-center gap-3">
-                                                <div className="p-2 bg-blue-100 rounded-lg">
-                                                    <Clock size={18} className="text-blue-600" />
-                                                </div>
-                                                <div>
-                                                    <p className="text-xs text-slate-500 font-medium">Giờ</p>
-                                                    <p className="text-sm font-semibold text-slate-900">
-                                                        {booking.bookingTime}
-                                                    </p>
-                                                </div>
-                                            </div>
-
-                                            <div className="flex items-center gap-3">
-                                                <div className="p-2 bg-emerald-100 rounded-lg">
-                                                    <Users size={18} className="text-emerald-600" />
-                                                </div>
-                                                <div>
-                                                    <p className="text-xs text-slate-500 font-medium">Số người</p>
-                                                    <p className="text-sm font-semibold text-slate-900">
-                                                        {booking.numberOfGuests} khách
-                                                    </p>
-                                                </div>
-                                            </div>
-
-                                            <div className="flex items-center gap-3">
-                                                <div className="p-2 bg-purple-100 rounded-lg">
-                                                    <Phone size={18} className="text-purple-600" />
-                                                </div>
-                                                <div>
-                                                    <p className="text-xs text-slate-500 font-medium">SĐT</p>
-                                                    <p className="text-sm font-semibold text-slate-900">
-                                                        {booking.customerPhone}
-                                                    </p>
+                                                </span>
+                                                <div className="flex items-center gap-2 text-slate-400 dark:text-slate-500 text-xs font-bold tabular-nums">
+                                                    <Phone size={14} className="text-orange-600 dark:text-orange-500" />
+                                                    {booking.customerPhone}
                                                 </div>
                                             </div>
                                         </div>
+                                        <button
+                                            onClick={() => handleEditClick(booking)}
+                                            className="w-12 h-12 bg-white dark:bg-zinc-800 border border-slate-100 dark:border-zinc-700 text-slate-400 dark:text-slate-500 hover:text-orange-600 dark:hover:text-orange-400 hover:border-orange-100 dark:hover:border-orange-900 rounded-2xl flex items-center justify-center transition-all shadow-sm"
+                                        >
+                                            <Edit2 size={18} />
+                                        </button>
+                                    </div>
 
-                                        {booking.tableId && (
-                                            <div className="mb-6 p-4 bg-slate-50 rounded-lg border border-slate-200">
-                                                <div className="flex items-center gap-2">
-                                                    <User size={16} className="text-slate-600" />
-                                                    <div>
-                                                        <p className="text-xs text-slate-500 font-medium">Bàn</p>
-                                                        <p className="text-sm font-semibold text-slate-900">
-                                                            {booking.tableId.name}
-                                                        </p>
-                                                    </div>
+                                    <div className="grid grid-cols-3 gap-6 py-8 border-y border-slate-100 dark:border-zinc-800">
+                                        <div className="space-y-2">
+                                            <p className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">
+                                                Thời gian
+                                            </p>
+                                            <div className="flex items-center gap-2">
+                                                <Clock size={16} className="text-orange-600 dark:text-orange-500" />
+                                                <p className="text-sm font-black text-slate-900 dark:text-white tabular-nums">
+                                                    {booking.bookingTime}
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <div className="space-y-2">
+                                            <p className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">
+                                                Ngày đến
+                                            </p>
+                                            <div className="flex items-center gap-2">
+                                                <Calendar size={16} className="text-orange-600 dark:text-orange-500" />
+                                                <p className="text-sm font-black text-slate-900 dark:text-white tabular-nums">
+                                                    {new Date(booking.bookingDate).toLocaleDateString('vi-VN')}
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <div className="space-y-2">
+                                            <p className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">
+                                                Số khách
+                                            </p>
+                                            <div className="flex items-center gap-2">
+                                                <Users size={16} className="text-orange-600 dark:text-orange-500" />
+                                                <p className="text-sm font-black text-slate-900 dark:text-white tabular-nums">
+                                                    {booking.numberOfGuests}p
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        {booking.tableId ? (
+                                            <div className="flex items-center gap-4 p-4 bg-orange-50/50 dark:bg-orange-950/20 border border-orange-100 dark:border-orange-900/30 rounded-2xl">
+                                                <div className="w-10 h-10 bg-orange-600 dark:bg-orange-500 rounded-xl flex items-center justify-center shrink-0 shadow-lg dark:shadow-none shadow-orange-100">
+                                                    <LayoutGrid size={18} className="text-white" />
                                                 </div>
+                                                <div className="min-w-0">
+                                                    <p className="text-[9px] font-black text-orange-600 dark:text-orange-400 uppercase tracking-widest leading-none mb-1">
+                                                        Vị trí bàn
+                                                    </p>
+                                                    <p className="text-sm font-black text-slate-900 dark:text-white truncate">
+                                                        {booking.tableId.name}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        ) : (
+                                            <div className="flex items-center gap-4 p-4 bg-slate-50 dark:bg-zinc-800/50 border border-dashed border-slate-200 dark:border-zinc-700 rounded-2xl">
+                                                <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 text-slate-300 dark:text-slate-600">
+                                                    <MapPin size={18} />
+                                                </div>
+                                                <p className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">
+                                                    Chưa gán vị trí
+                                                </p>
                                             </div>
                                         )}
 
-                                        <div className="flex gap-2">
+                                        {booking.notes && (
+                                            <div className="flex items-start gap-4 p-4 bg-slate-50/50 dark:bg-zinc-800/50 border border-slate-100 dark:border-zinc-800 rounded-2xl">
+                                                <MessageSquare size={14} className="text-orange-600 dark:text-orange-500 mt-1 shrink-0" />
+                                                <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium line-clamp-2 italic leading-relaxed">
+                                                    "{booking.notes}"
+                                                </p>
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    <div className="flex items-center gap-3 pt-2">
+                                        <button
+                                            onClick={() => handleViewDetails(booking)}
+                                            className="flex-1 px-6 py-4 rounded-2xl bg-white dark:bg-zinc-800 border border-slate-100 dark:border-zinc-700 text-xs font-black text-slate-600 dark:text-slate-400 uppercase tracking-widest hover:bg-slate-50 dark:hover:bg-zinc-700 transition-all flex items-center justify-center"
+                                        >
+                                            Chi tiết <ArrowRight size={14} className="ml-2" />
+                                        </button>
+
+                                        {booking.status === 'pending' && (
                                             <button
-                                                onClick={() => handleViewDetails(booking)}
-                                                className="flex-1 px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg font-medium text-sm transition-colors"
+                                                onClick={() => handleUpdateStatus(booking._id, 'confirmed')}
+                                                className="flex-[1.5] px-6 py-4 rounded-2xl bg-orange-600 text-white text-xs font-black uppercase tracking-widest hover:bg-orange-700 shadow-lg dark:shadow-none shadow-orange-100 transition-all flex items-center justify-center gap-2"
                                             >
-                                                Chi tiết
+                                                <Check size={16} /> Xác nhận
                                             </button>
+                                        )}
 
-                                            {booking.status !== 'confirmed' && (
-                                                <button
-                                                    onClick={() => handleUpdateStatus(booking._id, 'confirmed')}
-                                                    className="flex-1 px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg font-medium text-sm transition-colors flex items-center justify-center gap-2"
-                                                >
-                                                    <Check size={16} />
-                                                    Xác nhận
-                                                </button>
-                                            )}
+                                        {booking.status === 'confirmed' && (
+                                            <button
+                                                onClick={() => handleUpdateStatus(booking._id, 'completed')}
+                                                className="flex-[1.5] px-6 py-4 rounded-2xl bg-emerald-600 text-white text-xs font-black uppercase tracking-widest hover:bg-emerald-700 shadow-lg dark:shadow-none shadow-emerald-100 transition-all flex items-center justify-center gap-2"
+                                            >
+                                                <Zap size={16} /> Hoàn tất
+                                            </button>
+                                        )}
 
-                                            {booking.status !== 'completed' && booking.status !== 'cancelled' && (
-                                                <button
-                                                    onClick={() => handleUpdateStatus(booking._id, 'completed')}
-                                                    className="flex-1 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-medium text-sm transition-colors flex items-center justify-center gap-2"
-                                                >
-                                                    <Check size={16} />
-                                                    Hoàn thành
-                                                </button>
-                                            )}
-
-                                            {booking.status !== 'cancelled' && (
+                                        {booking.status !== 'cancelled' &&
+                                            booking.status !== 'completed' && (
                                                 <button
                                                     onClick={() => handleCancel(booking._id)}
-                                                    className="px-4 py-2 bg-red-100 hover:bg-red-200 text-red-600 rounded-lg font-medium text-sm transition-colors flex items-center justify-center gap-2"
+                                                    className="w-14 h-14 flex items-center justify-center bg-rose-50 dark:bg-rose-950/20 text-rose-600 dark:text-rose-400 border border-rose-100 dark:border-rose-900/30 rounded-2xl hover:bg-rose-600 hover:text-white transition-all"
+                                                    title="Hủy đặt chỗ"
                                                 >
-                                                    <X size={16} />
+                                                    <X size={20} />
                                                 </button>
                                             )}
-                                        </div>
                                     </div>
                                 </div>
-                            ))}
-                        </div>
-                    )}
-                </main>
+                            </div>
+                        ))}
+                    </div>
+                )}
             </div>
 
-            {/* Detail Modal — redesigned */}
+            {/* MODALS */}
             {isDetailModalOpen && selectedBooking && (
-                <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-                    <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden">
-                        {/* Header */}
-                        <div className="relative bg-linear-to-br from-orange-500 via-orange-500 to-amber-400 px-8 py-6 overflow-hidden">
-                            <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2" />
-                            <div className="absolute bottom-0 left-8 w-16 h-16 bg-white/10 rounded-full translate-y-1/2" />
-                            <div className="relative flex items-start justify-between">
-                                <div>
-                                    <p className="text-orange-100 text-sm font-medium mb-1">Thông tin chi tiết</p>
-                                    <h2 className="text-2xl font-bold text-white">{selectedBooking.customerName}</h2>
-                                    <div className="mt-2">
-                                        <span
-                                            className={`inline-block px-3 py-1 rounded-full text-xs font-bold bg-white/25 text-white`}
-                                        >
-                                            {getStatusLabel(selectedBooking.status)}
-                                        </span>
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm animate-in fade-in duration-300">
+                    <div className="bg-white/95 dark:bg-zinc-900/95 backdrop-blur-xl w-full max-w-lg rounded-[2.5rem] shadow-2xl overflow-hidden border border-white dark:border-zinc-800 animate-in zoom-in-95 duration-500">
+                         <div className="p-10 space-y-8 bg-white/50 dark:bg-zinc-900/50">
+                            <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-4">
+                                    <div className="w-14 h-14 rounded-2xl bg-orange-600 dark:bg-orange-500 flex items-center justify-center text-white shadow-lg dark:shadow-none shadow-orange-100">
+                                        <User size={24} />
+                                    </div>
+                                    <div>
+                                        <h2 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">{selectedBooking.customerName}</h2>
+                                        <p className="text-orange-600 dark:text-orange-500 text-[10px] font-black uppercase tracking-[0.2em] mt-1">Customer Profile</p>
                                     </div>
                                 </div>
-                                <button
-                                    onClick={() => setIsDetailModalOpen(false)}
-                                    className="p-2 rounded-full bg-white/20 hover:bg-white/30 text-white transition-colors"
-                                >
-                                    <X size={18} />
+                                <button onClick={() => setIsDetailModalOpen(false)} className="p-2 hover:bg-slate-100 dark:hover:bg-zinc-800 rounded-xl transition-all">
+                                    <X size={20} className="text-slate-400 dark:text-slate-500" />
                                 </button>
                             </div>
-                        </div>
 
-                        {/* Info Grid */}
-                        <div className="px-8 py-6 space-y-4">
-                            <div className="grid grid-cols-2 gap-3">
-                                <div className="flex items-center gap-3 p-3.5 bg-orange-50 rounded-xl border border-orange-100">
-                                    <div className="p-2 bg-orange-100 rounded-lg shrink-0">
-                                        <Calendar size={15} className="text-orange-600" />
-                                    </div>
-                                    <div>
-                                        <p className="text-xs text-slate-500 font-medium">Ngày đặt</p>
-                                        <p className="text-sm font-bold text-slate-900">
-                                            {new Date(selectedBooking.bookingDate).toLocaleDateString('vi-VN')}
-                                        </p>
-                                    </div>
+                            <div className="grid grid-cols-2 gap-6">
+                                <div className="p-6 bg-slate-50 dark:bg-zinc-800/50 rounded-2xl space-y-2">
+                                    <p className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Status</p>
+                                    <span className={cn("px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border", getStatusStyles(selectedBooking.status), "dark:bg-opacity-20 dark:border-opacity-30")}>
+                                        {getStatusLabel(selectedBooking.status)}
+                                    </span>
                                 </div>
-
-                                <div className="flex items-center gap-3 p-3.5 bg-blue-50 rounded-xl border border-blue-100">
-                                    <div className="p-2 bg-blue-100 rounded-lg shrink-0">
-                                        <Clock size={15} className="text-blue-600" />
-                                    </div>
-                                    <div>
-                                        <p className="text-xs text-slate-500 font-medium">Giờ đặt</p>
-                                        <p className="text-sm font-bold text-slate-900">
-                                            {selectedBooking.bookingTime}
-                                        </p>
-                                    </div>
+                                <div className="p-6 bg-slate-50 dark:bg-zinc-800/50 rounded-2xl space-y-2">
+                                    <p className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Phone</p>
+                                    <p className="text-sm font-black text-slate-900 dark:text-white tabular-nums">{selectedBooking.customerPhone}</p>
                                 </div>
-
-                                <div className="flex items-center gap-3 p-3.5 bg-emerald-50 rounded-xl border border-emerald-100">
-                                    <div className="p-2 bg-emerald-100 rounded-lg shrink-0">
-                                        <Users size={15} className="text-emerald-600" />
-                                    </div>
-                                    <div>
-                                        <p className="text-xs text-slate-500 font-medium">Số khách</p>
-                                        <p className="text-sm font-bold text-slate-900">
-                                            {selectedBooking.numberOfGuests} khách
-                                        </p>
-                                    </div>
+                                <div className="p-6 bg-slate-50 dark:bg-zinc-800/50 rounded-2xl space-y-2">
+                                    <p className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Schedule</p>
+                                    <p className="text-sm font-black text-slate-900 dark:text-white tabular-nums">
+                                        {selectedBooking.bookingTime} / {new Date(selectedBooking.bookingDate).toLocaleDateString('vi-VN')}
+                                    </p>
                                 </div>
-
-                                <div className="flex items-center gap-3 p-3.5 bg-purple-50 rounded-xl border border-purple-100">
-                                    <div className="p-2 bg-purple-100 rounded-lg shrink-0">
-                                        <Phone size={15} className="text-purple-600" />
-                                    </div>
-                                    <div>
-                                        <p className="text-xs text-slate-500 font-medium">Số điện thoại</p>
-                                        <p className="text-sm font-bold text-slate-900">
-                                            {selectedBooking.customerPhone}
-                                        </p>
-                                    </div>
+                                <div className="p-6 bg-slate-50 dark:bg-zinc-800/50 rounded-2xl space-y-2">
+                                    <p className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Pax</p>
+                                    <p className="text-sm font-black text-slate-900 dark:text-white tabular-nums">{selectedBooking.numberOfGuests} guests</p>
                                 </div>
                             </div>
 
-                            {selectedBooking.tableId && (
-                                <div className="flex items-center gap-3 p-3.5 bg-slate-50 rounded-xl border border-slate-200">
-                                    <div className="p-2 bg-slate-200 rounded-lg shrink-0">
-                                        <User size={15} className="text-slate-600" />
-                                    </div>
-                                    <div>
-                                        <p className="text-xs text-slate-500 font-medium">Bàn được xếp</p>
-                                        <p className="text-sm font-bold text-slate-900">
-                                            {selectedBooking.tableId.name}
-                                        </p>
-                                    </div>
-                                </div>
-                            )}
-
                             {selectedBooking.notes && (
-                                <div className="p-4 bg-amber-50 border border-amber-100 rounded-xl">
-                                    <p className="text-xs font-semibold text-amber-700 uppercase tracking-wider mb-1.5">
-                                        Ghi chú
-                                    </p>
-                                    <p className="text-sm text-slate-700 leading-relaxed">{selectedBooking.notes}</p>
+                                <div className="p-8 bg-orange-50/50 dark:bg-orange-950/20 border border-orange-100 dark:border-orange-900/30 rounded-3xl relative overflow-hidden">
+                                    <MessageSquare size={60} className="absolute -right-2 -bottom-2 text-orange-100 dark:text-orange-950/30 rotate-12" />
+                                    <p className="text-[10px] font-black text-orange-600 dark:text-orange-400 uppercase tracking-widest mb-2">Notes</p>
+                                    <p className="text-sm text-slate-600 dark:text-slate-400 italic font-medium relative z-10">"{selectedBooking.notes}"</p>
                                 </div>
                             )}
-                        </div>
 
-                        {/* Footer */}
-                        <div className="px-8 py-5 bg-slate-50 border-t border-slate-100 flex gap-3">
-                            <button
-                                onClick={() => {
-                                    setIsDetailModalOpen(false);
-                                    handleEditClick(selectedBooking);
-                                }}
-                                className="flex-1 px-4 py-2.5 bg-white border border-slate-200 hover:bg-slate-100 text-slate-600 rounded-xl font-medium text-sm transition-colors flex items-center justify-center gap-2"
-                            >
-                                <Edit2 size={15} />
-                                Chỉnh sửa
-                            </button>
                             <button
                                 onClick={() => setIsDetailModalOpen(false)}
-                                className="flex-1 px-4 py-2.5 bg-linear-to-r from-orange-500 to-amber-400 hover:from-orange-600 hover:to-amber-500 text-white rounded-xl font-semibold text-sm transition-all shadow-md shadow-orange-200"
+                                className="w-full py-4 rounded-2xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-sm font-black uppercase tracking-widest hover:bg-slate-800 dark:hover:bg-slate-100 transition-all shadow-xl dark:shadow-none shadow-slate-200"
                             >
-                                Đóng
+                                Close Details
                             </button>
-                        </div>
+                         </div>
                     </div>
                 </div>
             )}
 
-            {/* Edit Modal — redesigned */}
+            {/* EDIT MODAL */}
             {isEditModalOpen && editFormData && (
-                <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-                    <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden">
-                        {/* Modal Header */}
-                        <div className="relative bg-linear-to-br from-orange-500 via-orange-500 to-amber-400 px-8 py-6 overflow-hidden">
-                            <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2" />
-                            <div className="absolute bottom-0 left-8 w-16 h-16 bg-white/10 rounded-full translate-y-1/2" />
-                            <div className="relative flex items-center justify-between">
-                                <div>
-                                    <p className="text-orange-100 text-sm font-medium mb-1">Chỉnh sửa thông tin</p>
-                                    <h2 className="text-2xl font-bold text-white">Đặt bàn</h2>
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm animate-in fade-in duration-300">
+                    <div className="bg-white/95 dark:bg-zinc-900/95 backdrop-blur-xl w-full max-w-xl rounded-[2.5rem] shadow-2xl overflow-hidden border border-white dark:border-zinc-800 animate-in zoom-in-95 duration-500">
+                        <div className="p-10 space-y-10 bg-white/50 dark:bg-zinc-900/50">
+                            <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-4">
+                                    <div className="w-14 h-14 rounded-2xl bg-orange-50 dark:bg-orange-950/20 flex items-center justify-center text-orange-600 dark:text-orange-400">
+                                        <Settings size={24} />
+                                    </div>
+                                    <div>
+                                        <h2 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">Edit Booking</h2>
+                                        <p className="text-slate-400 dark:text-slate-500 text-[10px] font-black uppercase tracking-[0.2em] mt-1">Configure Parameters</p>
+                                    </div>
                                 </div>
-                                <button
-                                    onClick={() => setIsEditModalOpen(false)}
-                                    className="p-2 rounded-full bg-white/20 hover:bg-white/30 text-white transition-colors"
-                                >
-                                    <X size={18} />
+                                <button onClick={() => setIsEditModalOpen(false)} className="p-2 hover:bg-slate-100 dark:hover:bg-zinc-800 rounded-xl transition-all">
+                                    <X size={20} className="text-slate-400 dark:text-slate-500" />
                                 </button>
                             </div>
-                        </div>
 
-                        {/* Form Body */}
-                        <div className="px-8 py-6 space-y-5 max-h-[60vh] overflow-y-auto">
-                            {/* Tên khách & SĐT */}
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="space-y-1.5">
-                                    <label className="flex items-center gap-1.5 text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                                        <User size={12} />
-                                        Tên khách
-                                    </label>
+                            <div className="grid grid-cols-2 gap-8">
+                                <div className="space-y-2">
+                                    <label className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest px-1">Customer Name</label>
                                     <input
                                         type="text"
                                         value={editFormData.customerName}
-                                        onChange={(e) =>
-                                            setEditFormData({ ...editFormData, customerName: e.target.value })
-                                        }
-                                        className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900 font-medium focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent focus:bg-white transition-colors"
-                                        placeholder="Nguyễn Văn A"
+                                        onChange={(e) => setEditFormData({ ...editFormData, customerName: e.target.value })}
+                                        className="admin-input h-14 font-bold bg-white dark:bg-zinc-900 text-slate-900 dark:text-white border-slate-200 dark:border-zinc-800"
                                     />
                                 </div>
-                                <div className="space-y-1.5">
-                                    <label className="flex items-center gap-1.5 text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                                        <Phone size={12} />
-                                        Số điện thoại
-                                    </label>
+                                <div className="space-y-2">
+                                    <label className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest px-1">Phone Number</label>
                                     <input
                                         type="tel"
                                         value={editFormData.customerPhone}
-                                        onChange={(e) =>
-                                            setEditFormData({ ...editFormData, customerPhone: e.target.value })
-                                        }
-                                        className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900 font-medium focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent focus:bg-white transition-colors"
-                                        placeholder="0901 234 567"
+                                        onChange={(e) => setEditFormData({ ...editFormData, customerPhone: e.target.value })}
+                                        className="admin-input h-14 font-bold bg-white dark:bg-zinc-900 text-slate-900 dark:text-white border-slate-200 dark:border-zinc-800"
                                     />
                                 </div>
-                            </div>
-
-                            {/* Ngày & Giờ */}
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="space-y-1.5">
-                                    <label className="flex items-center gap-1.5 text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                                        <Calendar size={12} />
-                                        Ngày đặt
-                                    </label>
+                                <div className="space-y-2">
+                                    <label className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest px-1">Date</label>
                                     <input
                                         type="date"
                                         value={editFormData.bookingDate}
-                                        onChange={(e) =>
-                                            setEditFormData({ ...editFormData, bookingDate: e.target.value })
-                                        }
-                                        className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900 font-medium focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent focus:bg-white transition-colors"
+                                        onChange={(e) => setEditFormData({ ...editFormData, bookingDate: e.target.value })}
+                                        className="admin-input h-14 font-bold bg-white dark:bg-zinc-900 text-slate-900 dark:text-white border-slate-200 dark:border-zinc-800"
                                     />
                                 </div>
-                                <div className="space-y-1.5">
-                                    <label className="flex items-center gap-1.5 text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                                        <Clock size={12} />
-                                        Giờ đặt
-                                    </label>
+                                <div className="space-y-2">
+                                    <label className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest px-1">Time</label>
                                     <input
                                         type="time"
                                         value={editFormData.bookingTime}
-                                        onChange={(e) =>
-                                            setEditFormData({ ...editFormData, bookingTime: e.target.value })
-                                        }
-                                        className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900 font-medium focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent focus:bg-white transition-colors"
+                                        onChange={(e) => setEditFormData({ ...editFormData, bookingTime: e.target.value })}
+                                        className="admin-input h-14 font-bold bg-white dark:bg-zinc-900 text-slate-900 dark:text-white border-slate-200 dark:border-zinc-800"
                                     />
                                 </div>
                             </div>
 
-                            {/* Số người — stepper */}
-                            <div className="space-y-1.5">
-                                <label className="flex items-center gap-1.5 text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                                    <Users size={12} />
-                                    Số lượng khách
-                                </label>
-                                <div className="flex items-center gap-3">
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest px-1">Pax Size</label>
+                                <div className="flex items-center gap-4">
                                     <button
-                                        type="button"
-                                        onClick={() =>
-                                            setEditFormData({
-                                                ...editFormData,
-                                                numberOfGuests: Math.max(1, editFormData.numberOfGuests - 1),
-                                            })
-                                        }
-                                        className="w-10 h-10 flex items-center justify-center bg-slate-100 hover:bg-orange-100 hover:text-orange-600 text-slate-600 rounded-xl font-bold text-lg transition-colors border border-slate-200"
+                                        onClick={() => setEditFormData({ ...editFormData, numberOfGuests: Math.max(1, editFormData.numberOfGuests - 1) })}
+                                        className="w-14 h-14 bg-white dark:bg-zinc-800 border border-slate-100 dark:border-zinc-700 rounded-2xl flex items-center justify-center text-xl font-bold text-slate-900 dark:text-white shadow-sm hover:border-orange-600 dark:hover:border-orange-500 transition-all"
                                     >
                                         −
                                     </button>
-                                    <div className="flex-1 px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-center text-sm font-bold text-slate-900">
-                                        {editFormData.numberOfGuests}{' '}
-                                        <span className="font-normal text-slate-500">khách</span>
+                                    <div className="flex-1 h-14 bg-slate-50 dark:bg-zinc-800/50 rounded-2xl flex items-center justify-center font-black text-xl text-slate-900 dark:text-white">
+                                        {editFormData.numberOfGuests}
                                     </div>
                                     <button
-                                        type="button"
-                                        onClick={() =>
-                                            setEditFormData({
-                                                ...editFormData,
-                                                numberOfGuests: editFormData.numberOfGuests + 1,
-                                            })
-                                        }
-                                        className="w-10 h-10 flex items-center justify-center bg-slate-100 hover:bg-orange-100 hover:text-orange-600 text-slate-600 rounded-xl font-bold text-lg transition-colors border border-slate-200"
+                                        onClick={() => setEditFormData({ ...editFormData, numberOfGuests: editFormData.numberOfGuests + 1 })}
+                                        className="w-14 h-14 bg-white dark:bg-zinc-800 border border-slate-100 dark:border-zinc-700 rounded-2xl flex items-center justify-center text-xl font-bold text-slate-900 dark:text-white shadow-sm hover:border-orange-600 dark:hover:border-orange-500 transition-all"
                                     >
                                         +
                                     </button>
                                 </div>
                             </div>
 
-                            {/* Ghi chú */}
-                            <div className="space-y-1.5">
-                                <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider block">
-                                    Ghi chú
-                                </label>
-                                <textarea
-                                    value={editFormData.notes}
-                                    onChange={(e) => setEditFormData({ ...editFormData, notes: e.target.value })}
-                                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent focus:bg-white transition-colors resize-none"
-                                    rows="3"
-                                    placeholder="Yêu cầu đặc biệt, dị ứng thực phẩm..."
-                                />
+                            <div className="flex gap-4">
+                                <button
+                                    onClick={() => setIsEditModalOpen(false)}
+                                    className="flex-1 py-4 rounded-2xl bg-white dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-xs font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-zinc-700 transition-all"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    onClick={handleSaveEdit}
+                                    disabled={isSubmitting}
+                                    className="flex-1 py-4 rounded-2xl bg-orange-600 text-white text-xs font-black uppercase tracking-widest hover:bg-orange-700 shadow-xl dark:shadow-none shadow-orange-100 transition-all flex items-center justify-center gap-2"
+                                >
+                                    {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Save Changes'}
+                                </button>
                             </div>
-                        </div>
-
-                        {/* Footer */}
-                        <div className="px-8 py-5 bg-slate-50 border-t border-slate-100 flex gap-3">
-                            <button
-                                onClick={() => setIsEditModalOpen(false)}
-                                className="flex-1 px-4 py-2.5 bg-white border border-slate-200 hover:bg-slate-100 text-slate-600 rounded-xl font-medium text-sm transition-colors"
-                            >
-                                Hủy bỏ
-                            </button>
-                            <button
-                                onClick={handleSaveEdit}
-                                className="flex-1 px-4 py-2.5 bg-linear-to-r from-orange-500 to-amber-400 hover:from-orange-600 hover:to-amber-500 text-white rounded-xl font-semibold text-sm transition-all shadow-md shadow-orange-200 flex items-center justify-center gap-2"
-                            >
-                                Lưu thay đổi
-                                <ChevronRight size={16} />
-                            </button>
                         </div>
                     </div>
                 </div>
             )}
-        </div>
+        </AdminLayout>
     );
 };
 
 export default AdminBookings;
+
+

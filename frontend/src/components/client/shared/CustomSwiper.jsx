@@ -55,3 +55,4 @@ const CustomSwiper = ({ items, renderSlide, autoPlay = true, delay = 4500 }) => 
 };
 
 export default CustomSwiper;
+

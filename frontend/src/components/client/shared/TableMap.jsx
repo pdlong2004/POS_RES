@@ -86,3 +86,4 @@ const TableMap = ({ onClose }) => {
 };
 
 export default TableMap;
+

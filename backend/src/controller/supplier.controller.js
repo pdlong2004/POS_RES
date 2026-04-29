@@ -12,10 +12,18 @@ export const getSuppliers = async (req, res) => {
 
 export const createSupplier = async (req, res) => {
     try {
-        const { name, phone, address } = req.body;
+        const { name, contactPerson, phone, email, address, taxCode, status } = req.body;
         if (!name) return res.status(400).json({ success: false, message: 'Tên nhà cung cấp bắt buộc' });
 
-        const newSupplier = await Supplier.create({ name, phone, address });
+        const newSupplier = await Supplier.create({ 
+            name, 
+            contactPerson, 
+            phone, 
+            email, 
+            address, 
+            taxCode, 
+            status 
+        });
         res.status(201).json({ success: true, data: newSupplier });
     } catch (error) {
         console.error('createSupplier Error:', error);
@@ -26,9 +34,13 @@ export const createSupplier = async (req, res) => {
 export const updateSupplier = async (req, res) => {
     try {
         const { id } = req.params;
-        const { name, phone, address } = req.body;
+        const { name, contactPerson, phone, email, address, taxCode, status } = req.body;
 
-        const supplier = await Supplier.findByIdAndUpdate(id, { name, phone, address }, { new: true });
+        const supplier = await Supplier.findByIdAndUpdate(
+            id, 
+            { name, contactPerson, phone, email, address, taxCode, status }, 
+            { new: true }
+        );
         if (!supplier) return res.status(404).json({ success: false, message: 'Nhà cung cấp không tồn tại' });
         
         res.status(200).json({ success: true, data: supplier });

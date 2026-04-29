@@ -16,8 +16,15 @@ const invoiceSchema = new mongoose.Schema(
         serviceChargeRate: { type: Number, default: 0 }, // Tỷ lệ phí phục vụ (%)
 
         totalPrice: { type: Number, required: true }, // Tổng cộng cuối cùng
-        paymentMethod: { type: String, enum: ['cash', 'card', 'transfer', 'other'], default: 'cash' },
+        paymentMethod: { type: String, enum: ['cash', 'card', 'transfer', 'vnpay', 'other'], default: 'cash' },
         paymentStatus: { type: String, enum: ['pending', 'paid', 'cancelled', 'closed'], default: 'pending' },
+
+        // Tracking VNPay
+        vnp_TxnRef: { type: String }, // Mã tham chiếu giao dịch (Mã đơn hàng)
+        vnp_TransactionNo: { type: String }, // Mã giao dịch tại VNPAY
+        vnp_BankCode: { type: String }, // Mã ngân hàng thanh toán
+        vnp_PayDate: { type: String }, // Thời gian thanh toán
+        vnp_ResponseCode: { type: String }, // Mã phản hồi kết quả giao dịch
 
         note: { type: String, default: '' }, // Ghi chú
     },

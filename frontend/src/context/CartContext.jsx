@@ -36,7 +36,7 @@ export function CartProvider({ children }) {
     const [items, dispatch] = useReducer(cartReducer, []);
     useLocation(); // Re-render khi đổi route (sau khi đăng nhập bàn → /menu) để đọc lại tableInfo
 
-    const tableInfo = typeof window !== 'undefined' ? JSON.parse(localStorage.getItem('tableInfo') || 'null') : null;
+    const tableInfo = typeof window !== 'undefined' ? JSON.parse(sessionStorage.getItem('tableInfo') || 'null') : null;
     const tableId = tableInfo?._id;
 
     // Load cart from localStorage when tableId changes
@@ -102,3 +102,4 @@ export function useCart() {
     if (!ctx) throw new Error('useCart must be used within CartProvider');
     return ctx;
 }
+

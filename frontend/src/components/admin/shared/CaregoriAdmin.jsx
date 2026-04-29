@@ -7,3 +7,4 @@ const CaregoriAdmin = () => {
 };
 
 export default CaregoriAdmin;
+

@@ -1,25 +1,450 @@
-import React, { useEffect, useState } from 'react';
-import SidebarAdmin from '@/components/admin/shared/SidebarAdmin';
-import HeaderAdmin from '@/components/admin/shared/HeaderAdmin';
+import React, { useState, useMemo, useEffect } from 'react';
+import AdminLayout from '@/components/admin/shared/AdminLayout';
+import AdminLoading from '@/components/admin/shared/AdminLoading';
+import {
+    Plus,
+    Search,
+    Loader2,
+    Edit2,
+    Trash2,
+    X,
+    Check,
+    Image as ImageIcon,
+    ArrowUpDown,
+    ChevronLeft,
+    ChevronRight,
+    Filter,
+    MoreHorizontal,
+    Zap,
+} from 'lucide-react';
 import { getProductsApi, createProductApi, updateProductApi, deleteProductApi } from '@/service/products.service';
 import { getCategoryApi } from '@/service/category.service';
-import { Plus, Search, Loader2, Edit2, Trash2, X, Coffee, Image as ImageIcon } from 'lucide-react';
+import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/context/ToastContext';
+import { cn } from '@/lib/utils';
+import Pagination from '@/components/admin/shared/Pagination';
+
+// ========================
+// 2. OPTIMIZED COMPONENTS
+// ========================
+
+const ProductFilter = React.memo(({
+    search,
+    setSearch,
+    filterCategory,
+    setFilterCategory,
+    filterStatus,
+    setFilterStatus,
+    categories,
+}) => {
+    return (
+        <div className="admin-card p-6 flex flex-col md:flex-row items-center gap-6 border-white/20 dark:border-zinc-800/50 bg-white/50 dark:bg-zinc-900/50">
+            <div className="relative flex-1 w-full group">
+                <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 dark:text-slate-600 group-focus-within:text-orange-600 dark:group-focus-within:text-orange-500 transition-colors" />
+                <input
+                    type="text"
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                    placeholder="Tìm kiếm món ăn, danh mục..."
+                    className="admin-input h-14 pl-12 bg-white/50 dark:bg-zinc-900/50 border-white dark:border-zinc-800 text-slate-900 dark:text-white"
+                />
+            </div>
+            <div className="flex items-center gap-4 w-full md:w-auto">
+                <div className="relative flex-1 md:w-64">
+                    <select
+                        value={filterCategory}
+                        onChange={(e) => setFilterCategory(e.target.value)}
+                        className="admin-input appearance-none pl-6 pr-12 h-14 bg-white/50 dark:bg-zinc-900/50 border-white dark:border-zinc-800 text-slate-900 dark:text-white cursor-pointer font-bold text-xs uppercase tracking-widest"
+                    >
+                        <option value="All" className="dark:bg-zinc-900">Tất cả danh mục</option>
+                        {categories.map((c) => (
+                            <option key={c._id} value={c._id} className="dark:bg-zinc-900">
+                                {c.name}
+                            </option>
+                        ))}
+                    </select>
+                    <Filter className="absolute right-5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+                </div>
+                <div className="relative flex-1 md:w-56">
+                    <select
+                        value={filterStatus}
+                        onChange={(e) => setFilterStatus(e.target.value)}
+                        className="admin-input appearance-none pl-6 pr-12 h-14 bg-white/50 dark:bg-zinc-900/50 border-white dark:border-zinc-800 text-slate-900 dark:text-white cursor-pointer font-bold text-xs uppercase tracking-widest"
+                    >
+                        <option value="All" className="dark:bg-zinc-900">Trạng thái</option>
+                        <option value="Active" className="dark:bg-zinc-900">Còn hàng</option>
+                        <option value="Out of stock" className="dark:bg-zinc-900">Hết hàng</option>
+                    </select>
+                    <Filter className="absolute right-5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+                </div>
+            </div>
+        </div>
+    );
+});
+
+const ProductRow = React.memo(({ p, selectedIds, onSelect, onEdit, onDelete, formatPrice }) => {
+    const status = p.stock_quantity > 0 ? 'Active' : 'Out of stock';
+    return (
+        <tr className="group hover:bg-slate-50/50 dark:hover:bg-zinc-800/30 transition-colors">
+            <td className="px-8 py-6 text-center">
+                <label className="flex items-center cursor-pointer justify-center">
+                    <input
+                        type="checkbox"
+                        checked={selectedIds.includes(p._id)}
+                        onChange={() => onSelect(p._id)}
+                        className="sr-only peer"
+                    />
+                    <div className="w-6 h-6 rounded-lg border-2 border-slate-200 dark:border-zinc-700 peer-checked:bg-orange-600 peer-checked:border-orange-600 flex items-center justify-center transition-all shadow-sm">
+                        <Check
+                            className="w-3.5 h-3.5 text-white opacity-0 peer-checked:opacity-100"
+                            strokeWidth={4}
+                        />
+                    </div>
+                </label>
+            </td>
+            <td className="px-8 py-6">
+                <div className="flex items-center gap-5">
+                    <div className="w-16 h-16 rounded-2xl overflow-hidden bg-white dark:bg-zinc-900 border border-slate-100 dark:border-zinc-800 group-hover:border-orange-400/40 dark:group-hover:border-orange-900 transition-all shadow-sm">
+                        {p.image ? (
+                            <img
+                                src={p.image}
+                                alt={p.name}
+                                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                            />
+                        ) : (
+                            <div className="w-full h-full flex items-center justify-center text-slate-200 dark:text-zinc-800">
+                                <ImageIcon className="w-6 h-6" />
+                            </div>
+                        )}
+                    </div>
+                    <div className="min-w-0">
+                        <div className="font-black text-slate-900 dark:text-white truncate group-hover:text-orange-600 dark:group-hover:text-orange-500 transition-colors uppercase tracking-tight" title={p.name}>
+                            {p.name}
+                        </div>
+                        <div className="text-[10px] text-slate-400 dark:text-slate-500 font-black mt-1 uppercase tracking-widest">
+                            #{p._id.slice(-8).toUpperCase()}
+                        </div>
+                    </div>
+                </div>
+            </td>
+            <td className="px-8 py-6">
+                <span className="px-3 py-1 rounded-full text-[10px] font-black text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-zinc-800 uppercase tracking-widest">
+                    {p.categoryId?.name || '-'}
+                </span>
+            </td>
+            <td className="px-8 py-6 text-right">
+                <div className="font-black text-slate-900 dark:text-white tabular-nums">{formatPrice(p.price)}</div>
+            </td>
+            <td className="px-8 py-6 text-center">
+                <div className="font-black text-slate-600 dark:text-slate-300 tabular-nums text-lg">
+                    {p.stock_quantity || 0}
+                </div>
+            </td>
+            <td className="px-8 py-6 text-center">
+                <span
+                    className={cn(
+                        'px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border',
+                        status === 'Active' ? 'bg-emerald-50 dark:bg-emerald-950/20 text-emerald-600 dark:text-emerald-400 border-emerald-100 dark:border-emerald-900/30' : 'bg-rose-50 dark:bg-rose-950/20 text-rose-600 dark:text-rose-400 border-rose-100 dark:border-rose-900/30',
+                    )}
+                >
+                    {status === 'Active' ? 'Còn hàng' : 'Hết hàng'}
+                </span>
+            </td>
+            <td className="px-8 py-6 text-right">
+                <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-all duration-200">
+                    <button
+                        onClick={() => onEdit(p)}
+                        className="w-10 h-10 flex items-center justify-center text-slate-400 dark:text-slate-500 hover:text-orange-600 dark:hover:text-orange-500 hover:bg-orange-50 dark:hover:bg-orange-950/20 border border-transparent hover:border-orange-100 dark:hover:border-orange-900/30 rounded-xl transition-all"
+                    >
+                        <Edit2 size={16} />
+                    </button>
+                    <button
+                        onClick={() => onDelete(p._id)}
+                        className="w-10 h-10 flex items-center justify-center text-slate-400 dark:text-slate-500 hover:text-rose-600 dark:hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/20 border border-transparent hover:border-rose-100 dark:hover:border-rose-900/30 rounded-xl transition-all"
+                    >
+                        <Trash2 size={16} />
+                    </button>
+                </div>
+            </td>
+        </tr>
+    );
+});
+
+const ProductTable = React.memo(({ products, selectedIds, onSelect, onSelectAll, sortConfig, onSort, onEdit, onDelete }) => {
+    const formatPrice = (price) => new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
+
+    const SortIcon = ({ column }) => {
+        if (sortConfig.key !== column)
+            return (
+                <ArrowUpDown className="w-3.5 h-3.5 text-slate-300 dark:text-zinc-700 opacity-0 group-hover:opacity-100 transition-opacity" />
+            );
+        return (
+            <ArrowUpDown
+                className={cn(
+                    'w-3.5 h-3.5 text-orange-600 dark:text-orange-500 transition-transform',
+                    sortConfig.direction === 'desc' ? 'rotate-180' : '',
+                )}
+            />
+        );
+    };
+
+    return (
+        <div className="admin-card overflow-hidden border-white/40 dark:border-zinc-800/50 p-0 rounded-[2.5rem] bg-white/50 dark:bg-zinc-900/50">
+            <div className="overflow-x-auto scrollbar-hide">
+                <table className="w-full text-left border-collapse">
+                    <thead>
+                        <tr className="border-b border-slate-100 dark:border-zinc-800 bg-slate-50/50 dark:bg-zinc-800/30">
+                            <th className="px-8 py-6 w-14">
+                                <label className="flex items-center cursor-pointer justify-center">
+                                    <input
+                                        type="checkbox"
+                                        checked={selectedIds.length === products.length && products.length > 0}
+                                        onChange={onSelectAll}
+                                        className="sr-only peer"
+                                    />
+                                    <div className="w-6 h-6 rounded-lg border-2 border-slate-200 dark:border-zinc-700 peer-checked:bg-orange-600 peer-checked:border-orange-600 flex items-center justify-center transition-all shadow-sm">
+                                        <Check
+                                            className="w-3.5 h-3.5 text-white opacity-0 peer-checked:opacity-100"
+                                            strokeWidth={4}
+                                        />
+                                    </div>
+                                </label>
+                            </th>
+                            <th className="px-8 py-6 text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest cursor-pointer group" onClick={() => onSort('name')}>
+                                <div className="flex items-center gap-2">
+                                    Món ăn <SortIcon column="name" />
+                                </div>
+                            </th>
+                            <th className="px-8 py-6 text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest cursor-pointer group" onClick={() => onSort('category')}>
+                                <div className="flex items-center gap-2">
+                                    Danh mục <SortIcon column="category" />
+                                </div>
+                            </th>
+                            <th className="px-8 py-6 text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest cursor-pointer group text-right" onClick={() => onSort('price')}>
+                                <div className="flex items-center gap-2 justify-end">
+                                    Đơn giá <SortIcon column="price" />
+                                </div>
+                            </th>
+                            <th className="px-8 py-6 text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest cursor-pointer group text-center" onClick={() => onSort('stock_quantity')}>
+                                <div className="flex items-center gap-2 justify-center">
+                                    Kho <SortIcon column="stock_quantity" />
+                                </div>
+                            </th>
+                            <th className="px-8 py-6 text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest text-center">Trạng thái</th>
+                            <th className="px-8 py-6 text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest text-right">Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-50 dark:divide-zinc-800">
+                        {products.map((p) => (
+                            <ProductRow
+                                key={p._id}
+                                p={p}
+                                selectedIds={selectedIds}
+                                onSelect={onSelect}
+                                onEdit={onEdit}
+                                onDelete={onDelete}
+                                formatPrice={formatPrice}
+                            />
+                        ))}
+                        {products.length === 0 && (
+                            <tr>
+                                <td colSpan="7" className="px-8 py-32 text-center">
+                                    <div className="flex flex-col items-center gap-4">
+                                        <div className="w-24 h-24 bg-white dark:bg-zinc-800 rounded-full flex items-center justify-center border border-slate-100 dark:border-zinc-700 shadow-xl opacity-30">
+                                            <ImageIcon className="text-slate-900 dark:text-white" size={48} strokeWidth={1} />
+                                        </div>
+                                        <p className="text-slate-900 dark:text-white font-black uppercase tracking-widest">Không tìm thấy món ăn nào</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        )}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    );
+});
+
+const ProductForm = ({ isOpen, onClose, onSubmit, initialData, categories, isSubmitting }) => {
+    const [form, setForm] = useState({ name: '', price: '', categoryId: '', stock_quantity: 0, image: '' });
+
+    useEffect(() => {
+        if (initialData) {
+            setForm({
+                _id: initialData._id,
+                name: initialData.name || '',
+                price: initialData.price || '',
+                categoryId: initialData.categoryId?._id || initialData.categoryId || '',
+                stock_quantity: initialData.stock_quantity || 0,
+                image: initialData.image || '',
+            });
+        } else {
+            setForm({ name: '', price: '', categoryId: categories[0]?._id || '', stock_quantity: 0, image: '' });
+        }
+    }, [initialData, isOpen, categories]);
+
+    if (!isOpen) return null;
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        onSubmit(form);
+    };
+
+    return (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm animate-in fade-in duration-300">
+            <div className="bg-white/95 dark:bg-zinc-900/95 backdrop-blur-xl w-full max-w-2xl rounded-[3rem] shadow-2xl overflow-hidden border border-white dark:border-zinc-800 animate-in zoom-in-95 duration-500 flex flex-col max-h-[90vh]">
+                <div className="p-10 border-b border-slate-100 dark:border-zinc-800 flex items-center justify-between bg-white/50 dark:bg-zinc-800/50">
+                    <div className="flex items-center gap-5">
+                        <div className="w-14 h-14 rounded-2xl bg-orange-600 dark:bg-orange-500 flex items-center justify-center text-white shadow-lg shadow-orange-100 dark:shadow-none">
+                            {initialData ? <Edit2 size={24} /> : <Plus size={24} />}
+                        </div>
+                        <div>
+                            <h2 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">
+                                {initialData ? 'Cấu hình thực đơn' : 'Thiết lập món mới'}
+                            </h2>
+                            <p className="text-orange-600 dark:text-orange-500 text-[10px] font-black uppercase tracking-[0.2em] mt-1">Menu configuration system</p>
+                        </div>
+                    </div>
+                    <button onClick={onClose} className="p-2 hover:bg-slate-100 dark:hover:bg-zinc-800 rounded-xl transition-all">
+                        <X size={20} className="text-slate-400 dark:text-slate-500" />
+                    </button>
+                </div>
+
+                <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-10 space-y-10 scrollbar-hide">
+                    {/* Image Area */}
+                    <div className="space-y-4">
+                        <label className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest px-1">Visual Identity</label>
+                        <div className="flex gap-8 items-start">
+                            <div className="w-40 h-40 rounded-[2rem] border-2 border-dashed border-slate-200 dark:border-zinc-800 flex items-center justify-center overflow-hidden bg-slate-50 dark:bg-zinc-950 transition-colors shrink-0 shadow-inner group hover:border-orange-400 dark:hover:border-orange-900 transition-all duration-500">
+                                {form.image ? (
+                                    <img src={form.image} alt="Preview" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                                ) : (
+                                    <ImageIcon className="w-12 h-12 text-slate-200 dark:text-zinc-800" strokeWidth={1} />
+                                )}
+                            </div>
+                            <div className="flex-1 space-y-4">
+                                <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium leading-relaxed italic">
+                                    Vui lòng cung cấp URL hình ảnh chất lượng cao để đảm bảo hiển thị tối ưu trên thiết bị của khách hàng.
+                                </p>
+                                <input
+                                    value={form.image}
+                                    onChange={(e) => setForm({ ...form, image: e.target.value })}
+                                    placeholder="https://example.com/image.jpg"
+                                    className="admin-input h-14 bg-slate-50 dark:bg-zinc-950 border-transparent focus:bg-white dark:focus:bg-zinc-900"
+                                />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="space-y-4">
+                        <label className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest px-1">Tên thực thể</label>
+                        <input
+                            required
+                            value={form.name}
+                            onChange={(e) => setForm({ ...form, name: e.target.value })}
+                            placeholder="Vd: Sushi Cá Hồi Đặc Biệt"
+                            className="admin-input h-16 text-xl font-black uppercase tracking-tight text-slate-900 dark:text-white"
+                        />
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-8">
+                        <div className="space-y-4">
+                            <label className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest px-1">Đơn giá niêm yết</label>
+                            <div className="relative">
+                                <input
+                                    required
+                                    type="number"
+                                    min="0"
+                                    value={form.price}
+                                    onChange={(e) => setForm({ ...form, price: Number(e.target.value) })}
+                                    className="admin-input h-16 pl-12 font-black text-orange-600 dark:text-orange-500 text-xl tabular-nums bg-white dark:bg-zinc-950"
+                                />
+                                <span className="absolute left-5 top-1/2 -translate-y-1/2 font-black text-slate-300 dark:text-zinc-700 uppercase tracking-widest text-[10px]">đ</span>
+                            </div>
+                        </div>
+                        <div className="space-y-4">
+                            <label className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest px-1">Định lượng khả dụng</label>
+                            <input
+                                required
+                                type="number"
+                                min="0"
+                                value={form.stock_quantity}
+                                onChange={(e) => setForm({ ...form, stock_quantity: Number(e.target.value) })}
+                                className="admin-input h-16 font-black text-slate-900 dark:text-white text-xl tabular-nums bg-white dark:bg-zinc-950"
+                            />
+                        </div>
+                    </div>
+
+                    <div className="space-y-4">
+                        <label className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest px-1">Phân loại danh mục</label>
+                        <div className="relative">
+                            <select
+                                required
+                                value={form.categoryId}
+                                onChange={(e) => setForm({ ...form, categoryId: e.target.value })}
+                                className="admin-input h-16 px-6 font-black uppercase tracking-widest text-xs appearance-none text-slate-900 dark:text-white bg-white dark:bg-zinc-950"
+                            >
+                                <option value="" disabled className="dark:bg-zinc-900">Chọn danh mục</option>
+                                {categories.map((c) => (
+                                    <option key={c._id} value={c._id} className="dark:bg-zinc-900">{c.name}</option>
+                                ))}
+                            </select>
+                            <MoreHorizontal className="absolute right-6 top-1/2 -translate-y-1/2 text-slate-300 dark:text-zinc-700 pointer-events-none" />
+                        </div>
+                    </div>
+                </form>
+
+                <div className="p-10 border-t border-slate-100 dark:border-zinc-800 bg-white/50 dark:bg-zinc-800/50 flex gap-6">
+                    <button
+                        type="button"
+                        onClick={onClose}
+                        disabled={isSubmitting}
+                        className="flex-1 py-5 rounded-2xl bg-white dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-xs font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-zinc-700 transition-all"
+                    >
+                        Hủy bỏ
+                    </button>
+                    <button
+                        onClick={handleSubmit}
+                        disabled={isSubmitting}
+                        className="flex-1 py-5 rounded-2xl bg-orange-600 text-white text-xs font-black uppercase tracking-widest hover:bg-orange-700 shadow-xl shadow-orange-100 dark:shadow-none transition-all flex items-center justify-center gap-3"
+                    >
+                        {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : (
+                            <>
+                                <Zap size={18} /> Lưu thay đổi
+                            </>
+                        )}
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+// ========================
+// 3. MAIN PAGE
+// ========================
 
 const AdminProducts = () => {
+    const { user } = useAuth();
+    const { toast } = useToast();
+    const roleName = (user?.roleId?.name || user?.role || '').toString().toLowerCase();
+    const isAdmin = roleName === 'admin';
+
+    // States
     const [products, setProducts] = useState([]);
     const [categories, setCategories] = useState([]);
-    const [loading, setLoading] = useState(true);
     const [search, setSearch] = useState('');
-    const { toast } = useToast();
-
-    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [filterCategory, setFilterCategory] = useState('All');
+    const [filterStatus, setFilterStatus] = useState('All');
+    const [selectedIds, setSelectedIds] = useState([]);
+    const [sortConfig, setSortConfig] = useState({ key: 'name', direction: 'asc' });
+    const [loading, setLoading] = useState(true);
     const [isSubmitting, setIsSubmitting] = useState(false);
+
+    // Modal States
+    const [isFormOpen, setIsFormOpen] = useState(false);
     const [editingProduct, setEditingProduct] = useState(null);
-    const [form, setForm] = useState({ name: '', price: '', categoryId: '', image: '' });
-
-
-    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const [isDeleteOpen, setIsDeleteOpen] = useState(false);
     const [deletingId, setDeletingId] = useState(null);
 
     const fetchData = async () => {
@@ -30,7 +455,7 @@ const AdminProducts = () => {
             setCategories(catRes?.data || catRes || []);
         } catch (err) {
             console.error('Failed to load data', err);
-            toast.error('Không thể tải dữ liệu');
+            toast.error('Không thể tải cơ sở dữ liệu thực đơn');
         } finally {
             setLoading(false);
         }
@@ -40,33 +465,64 @@ const AdminProducts = () => {
         fetchData();
     }, []);
 
-    const openCreateModal = () => {
-        setEditingProduct(null);
-        setForm({ name: '', price: '', categoryId: categories[0]?._id || '', image: '' });
-        setIsModalOpen(true);
-    };
+    const filteredProducts = useMemo(() => {
+        let result = [...products];
+        if (search) {
+            const query = search.toLowerCase();
+            result = result.filter(
+                (p) =>
+                    p.name?.toLowerCase().includes(query) ||
+                    p.categoryId?.name?.toLowerCase().includes(query),
+            );
+        }
+        if (filterCategory !== 'All') {
+            result = result.filter((p) => p.categoryId?._id === filterCategory || p.categoryId === filterCategory);
+        }
+        if (filterStatus !== 'All') {
+            result = result.filter((p) => {
+                const status = p.stock_quantity > 0 ? 'Active' : 'Out of stock';
+                return status === filterStatus;
+            });
+        }
 
-    const openEditModal = (product) => {
-        setEditingProduct(product);
-        setForm({
-            name: product.name || '',
-            price: product.price || '',
-            categoryId: product.categoryId?._id || product.categoryId || '',
-            image: product.image || '',
+        result.sort((a, b) => {
+            let aVal = a[sortConfig.key];
+            let bVal = b[sortConfig.key];
+
+            if (sortConfig.key === 'category') {
+                aVal = a.categoryId?.name || '';
+                bVal = b.categoryId?.name || '';
+            }
+
+            if (aVal < bVal) return sortConfig.direction === 'asc' ? -1 : 1;
+            if (aVal > bVal) return sortConfig.direction === 'asc' ? 1 : -1;
+            return 0;
         });
-        setIsModalOpen(true);
+
+        return result;
+    }, [products, search, filterCategory, filterStatus, sortConfig]);
+
+    const handleSort = (key) => {
+        let direction = 'asc';
+        if (sortConfig.key === key && sortConfig.direction === 'asc') direction = 'desc';
+        setSortConfig({ key, direction });
     };
 
-    const closeModal = () => {
-        setIsModalOpen(false);
-        setEditingProduct(null);
+    const handleSelect = (id) => {
+        setSelectedIds((prev) => (prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]));
     };
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
+    const handleSelectAll = () => {
+        if (selectedIds.length === filteredProducts.length && filteredProducts.length > 0) {
+            setSelectedIds([]);
+        } else {
+            setSelectedIds(filteredProducts.map((p) => p._id));
+        }
+    };
 
+    const handleSave = async (form) => {
         if (!form.name.trim() || !form.price || !form.categoryId) {
-            toast.warning('Vui lòng điền đầy đủ thông tin bắt buộc');
+            toast.warning('Vui lòng điền đầy đủ các tham số bắt buộc');
             return;
         }
 
@@ -77,9 +533,10 @@ const AdminProducts = () => {
                 toast.success('Cập nhật món ăn thành công');
             } else {
                 await createProductApi(form);
-                toast.success('Thêm món ăn thành công');
+                toast.success('Thiết lập món mới hoàn tất');
             }
-            closeModal();
+            setIsFormOpen(false);
+            setEditingProduct(null);
             fetchData();
         } catch (err) {
             console.error('Submit failed', err);
@@ -89,19 +546,20 @@ const AdminProducts = () => {
         }
     };
 
-    const openDeleteConfirm = (id) => {
-        setDeletingId(id);
-        setIsDeleteModalOpen(true);
-    };
-
-    const handleDelete = async () => {
-        if (!deletingId) return;
-
+    const confirmDelete = async () => {
         setIsSubmitting(true);
         try {
-            await deleteProductApi(deletingId);
-            toast.success('Đã xóa món ăn');
-            setIsDeleteModalOpen(false);
+            if (deletingId === 'bulk') {
+                for (const id of selectedIds) {
+                    await deleteProductApi(id);
+                }
+                setSelectedIds([]);
+                toast.success(`Đã loại bỏ ${selectedIds.length} thực thể khỏi thực đơn`);
+            } else {
+                await deleteProductApi(deletingId);
+                toast.success('Đã xóa món ăn thành công');
+            }
+            setIsDeleteOpen(false);
             setDeletingId(null);
             fetchData();
         } catch (err) {
@@ -112,309 +570,138 @@ const AdminProducts = () => {
         }
     };
 
-    const formatPrice = (price) => {
-        return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price || 0);
-    };
+    // Pagination
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 8;
+    const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
+    const paginatedProducts = filteredProducts.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
-    const filteredProducts = products.filter(
-        (p) =>
-            p.name?.toLowerCase().includes(search.toLowerCase()) ||
-            p.categoryId?.name?.toLowerCase().includes(search.toLowerCase()),
-    );
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [search, filterCategory, filterStatus]);
 
     return (
-        <div className="h-screen bg-gray-50 flex flex-col overflow-hidden">
-            <HeaderAdmin />
-
-            <div className="flex flex-1 overflow-hidden">
-                <SidebarAdmin />
-
-                <main className="flex-1 overflow-y-auto w-full p-4 md:p-6 lg:p-8 relative">
-                    <div className="max-w-7xl mx-auto space-y-6">
-                        {/* Page Header */}
-                        <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-4 bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-                            <div>
-                                <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-                                    <div className="p-2 bg-[#F89520]/10 rounded-xl">
-                                        <Coffee className="w-6 h-6 text-[#F89520]" />
-                                    </div>
-                                    Quản lý món ăn
-                                </h1>
-                                <p className="text-sm text-gray-500 mt-2">
-                                    Thêm, sửa, xoá và quản lý danh sách món ăn, đồ uống
-                                </p>
-                            </div>
-
-                            <div className="flex items-center gap-3 w-full xl:w-auto">
-                                <div className="relative flex-1 xl:w-72">
-                                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                                    <input
-                                        value={search}
-                                        onChange={(e) => setSearch(e.target.value)}
-                                        placeholder="Tìm tên món hoặc nhóm..."
-                                        className="w-full pl-9 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#F89520]/20 focus:border-[#F89520] transition-all text-sm"
-                                    />
-                                </div>
-                                <button
-                                    onClick={openCreateModal}
-                                    className="flex items-center justify-center gap-2 px-6 py-2.5 bg-[#F89520] hover:bg-[#E07F10] text-white rounded-xl font-medium transition-all focus:ring-2 focus:ring-[#F89520]/20 active:scale-95 whitespace-nowrap shadow-sm shadow-[#F89520]/20"
-                                >
-                                    <Plus className="w-5 h-5" />
-                                    <span className="hidden sm:inline">Thêm món</span>
-                                </button>
-                            </div>
-                        </div>
-
-                        {/* Content */}
-                        {loading ? (
-                            <div className="flex flex-col items-center justify-center py-20 bg-white rounded-2xl shadow-sm border border-gray-100 min-h-100">
-                                <Loader2 className="w-10 h-10 text-[#F89520] animate-spin mb-4" />
-                                <p className="text-gray-500 font-medium">Đang tải danh sách món ăn...</p>
-                            </div>
-                        ) : filteredProducts.length === 0 ? (
-                            <div className="flex flex-col items-center justify-center py-20 bg-white rounded-2xl shadow-sm border border-gray-100 min-h-100">
-                                <div className="p-4 bg-gray-50 rounded-full mb-4">
-                                    <Coffee className="w-12 h-12 text-gray-400" />
-                                </div>
-                                <h3 className="text-lg font-bold text-gray-900 mb-2">Không tìm thấy món ăn nào</h3>
-                                <p className="text-gray-500 text-center max-w-sm">
-                                    {search
-                                        ? 'Thử thay đổi từ khóa tìm kiếm.'
-                                        : 'Bắt đầu thêm món mới cho nhà hàng của bạn.'}
-                                </p>
-                            </div>
-                        ) : (
-                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 md:gap-6">
-                                {filteredProducts.map((p) => (
-                                    <div
-                                        key={p._id}
-                                        className="group bg-white rounded-2xl shadow-sm border border-gray-100 hover:border-[#F89520]/30 hover:shadow-md transition-all overflow-hidden flex flex-col h-full"
-                                    >
-                                        <div className="aspect-video w-full bg-gray-100 relative overflow-hidden flex items-center justify-center">
-                                            {p.image ? (
-                                                <img
-                                                    src={p.image}
-                                                    alt={p.name}
-                                                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                                                    onError={(e) => {
-                                                        e.target.style.display = 'none';
-                                                        e.target.nextSibling.style.display = 'flex';
-                                                    }}
-                                                />
-                                            ) : null}
-                                            <div
-                                                className="absolute inset-0 flex flex-col items-center justify-center text-gray-400"
-                                                style={{ display: p.image ? 'none' : 'flex' }}
-                                            >
-                                                <ImageIcon className="w-10 h-10 opacity-50 mb-2" />
-                                                <span className="text-xs font-medium">No Image</span>
-                                            </div>
-                                            <div className="absolute top-2 right-2 bg-white/90 backdrop-blur-sm px-2 py-1 flex items-center rounded-lg text-xs font-bold text-[#F89520] opacity-0 group-hover:opacity-100 transition-opacity shadow-sm">
-                                                {p.categoryId?.name || '-'}
-                                            </div>
-                                        </div>
-
-                                        <div className="p-4 flex flex-col flex-1">
-                                            <h3
-                                                className="text-lg font-bold text-gray-900 line-clamp-2 leading-tight mb-2 group-hover:text-[#F89520] transition-colors"
-                                                title={p.name}
-                                            >
-                                                {p.name}
-                                            </h3>
-
-                                            <div className="mt-auto pt-3 flex items-end justify-between border-t border-gray-50">
-                                                <div className="font-bold text-[#C0392B] text-lg">
-                                                    {formatPrice(p.price)}
-                                                </div>
-
-                                                <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                    <button
-                                                        onClick={() => openEditModal(p)}
-                                                        className="p-1.5 bg-gray-50 hover:bg-blue-50 text-gray-400 hover:text-blue-500 rounded-lg transition-colors border border-gray-200 hover:border-blue-200"
-                                                        title="Sửa món"
-                                                    >
-                                                        <Edit2 className="w-4 h-4" />
-                                                    </button>
-                                                    <button
-                                                        onClick={() => openDeleteConfirm(p._id)}
-                                                        className="p-1.5 bg-gray-50 hover:bg-red-50 text-gray-400 hover:text-red-500 rounded-lg transition-colors border border-gray-200 hover:border-red-200"
-                                                        title="Xoá món"
-                                                    >
-                                                        <Trash2 className="w-4 h-4" />
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        )}
-                    </div>
-                </main>
+        <AdminLayout className="space-y-10">
+            {/* HEADER */}
+            <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 animate-in fade-in slide-in-from-top-4 duration-700">
+                <div className="space-y-1">
+                    <h1 className="text-4xl font-black tracking-tight text-slate-900 dark:text-white">Thực đơn</h1>
+                    <p className="text-slate-500 dark:text-slate-400 font-bold text-sm">
+                        Quản lý ma trận món ăn, cấu trúc giá và định lượng tồn kho vật lý.
+                    </p>
+                </div>
+                <div className="flex items-center gap-4 w-full lg:w-auto">
+                    {selectedIds.length > 0 && isAdmin && (
+                        <button
+                            onClick={() => {
+                                setDeletingId('bulk');
+                                setIsDeleteOpen(true);
+                            }}
+                            className="h-14 px-8 bg-rose-50 dark:bg-rose-950/20 text-rose-600 dark:text-rose-400 hover:bg-rose-600 hover:text-white border border-rose-100 dark:border-rose-900/30 rounded-2xl font-black text-xs uppercase tracking-widest transition-all flex items-center gap-2 shadow-sm"
+                        >
+                            <Trash2 size={18} /> Xóa ({selectedIds.length})
+                        </button>
+                    )}
+                    {isAdmin && (
+                        <button
+                            onClick={() => {
+                                setEditingProduct(null);
+                                setIsFormOpen(true);
+                            }}
+                            className="flex-1 lg:flex-none h-14 px-10 bg-orange-600 hover:bg-orange-700 text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-lg dark:shadow-none shadow-orange-100 transition-all flex items-center justify-center gap-3"
+                        >
+                            <Plus size={20} /> Thêm món ăn
+                        </button>
+                    )}
+                </div>
             </div>
 
-            {/* Create/Edit Modal */}
-            {isModalOpen && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 animate-in fade-in duration-200">
-                    <div className="bg-white rounded-2xl w-full max-w-md shadow-xl overflow-hidden animate-in zoom-in-95 duration-200">
-                        <div className="flex items-center justify-between p-5 md:p-6 border-b border-gray-100">
-                            <h2 className="text-xl font-bold text-gray-900">
-                                {editingProduct ? 'Sửa món ăn' : 'Thêm món ăn mới'}
-                            </h2>
-                            <button
-                                onClick={closeModal}
-                                className="p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-600 rounded-xl transition-colors"
-                            >
-                                <X className="w-5 h-5" />
-                            </button>
-                        </div>
+            {/* FILTER BAR */}
+            <ProductFilter
+                search={search}
+                setSearch={setSearch}
+                filterCategory={filterCategory}
+                setFilterCategory={setFilterCategory}
+                filterStatus={filterStatus}
+                setFilterStatus={setFilterStatus}
+                categories={categories}
+            />
 
-                        <form onSubmit={handleSubmit} className="p-5 md:p-6 space-y-4">
-                            <div>
-                                <label className="block text-sm font-semibold text-gray-700 mb-1.5">
-                                    Tên món <span className="text-red-500">*</span>
-                                </label>
-                                <input
-                                    required
-                                    value={form.name}
-                                    onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
-                                    placeholder="Ví dụ: Cà phê sữa đá"
-                                    className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#F89520]/20 focus:border-[#F89520] transition-all"
-                                />
-                            </div>
-
-                            <div className="grid grid-cols-2 gap-4">
-                                <div>
-                                    <label className="block text-sm font-semibold text-gray-700 mb-1.5">
-                                        Giá bán (VNĐ) <span className="text-red-500">*</span>
-                                    </label>
-                                    <input
-                                        required
-                                        type="number"
-                                        min="0"
-                                        value={form.price}
-                                        onChange={(e) => setForm((f) => ({ ...f, price: e.target.value }))}
-                                        placeholder="Ví dụ: 35000"
-                                        className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#F89520]/20 focus:border-[#F89520] transition-all"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-semibold text-gray-700 mb-1.5">
-                                        Danh mục <span className="text-red-500">*</span>
-                                    </label>
-                                    <div className="relative">
-                                        <select
-                                            required
-                                            value={form.categoryId}
-                                            onChange={(e) => setForm((f) => ({ ...f, categoryId: e.target.value }))}
-                                            className="w-full appearance-none px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#F89520]/20 focus:border-[#F89520] transition-all pr-10"
-                                        >
-                                            <option value="" disabled>
-                                                Chọn danh mục
-                                            </option>
-                                            {categories.map((c) => (
-                                                <option key={c._id} value={c._id}>
-                                                    {c.name}
-                                                </option>
-                                            ))}
-                                        </select>
-                                        <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">
-                                            <svg
-                                                className="w-4 h-4"
-                                                fill="none"
-                                                stroke="currentColor"
-                                                viewBox="0 0 24 24"
-                                            >
-                                                <path
-                                                    strokeLinecap="round"
-                                                    strokeLinejoin="round"
-                                                    strokeWidth="2.5"
-                                                    d="M19 9l-7 7-7-7"
-                                                ></path>
-                                            </svg>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div>
-                                <label className="block text-sm font-semibold text-gray-700 mb-1.5">
-                                    Link ảnh (tùy chọn)
-                                </label>
-                                <input
-                                    value={form.image}
-                                    onChange={(e) => setForm((f) => ({ ...f, image: e.target.value }))}
-                                    placeholder="https://example.com/image.jpg"
-                                    className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#F89520]/20 focus:border-[#F89520] transition-all"
-                                />
-                                {form.image && (
-                                    <div className="mt-2 text-xs text-gray-500 flex items-center gap-2">
-                                        <div className="w-10 h-10 rounded border overflow-hidden">
-                                            <img
-                                                src={form.image}
-                                                alt="Preview"
-                                                className="w-full h-full object-cover"
-                                                onError={(e) => (e.target.style.display = 'none')}
-                                            />
-                                        </div>
-                                        <span>Ảnh xem trước</span>
-                                    </div>
-                                )}
-                            </div>
-
-                            <div className="mt-8 pt-6 border-t border-gray-100 flex gap-3 justify-end">
-                                <button
-                                    type="button"
-                                    onClick={closeModal}
-                                    disabled={isSubmitting}
-                                    className="px-5 py-2.5 bg-white border border-gray-200 text-gray-700 font-medium rounded-xl hover:bg-gray-50 transition-colors"
-                                >
-                                    Hủy
-                                </button>
-                                <button
-                                    type="submit"
-                                    disabled={isSubmitting}
-                                    className="px-5 py-2.5 bg-[#F89520] text-white font-medium rounded-xl hover:bg-[#E07F10] transition-colors flex items-center gap-2 min-w-30 justify-center"
-                                >
-                                    {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Lưu lại'}
-                                </button>
-                            </div>
-                        </form>
-                    </div>
+            {/* CONTENT OR LOADER */}
+            {loading ? (
+                <AdminLoading message="Đang đồng bộ thực đơn..." />
+            ) : (
+                <div className="animate-in fade-in slide-in-from-bottom-4 duration-700 delay-200">
+                    <ProductTable
+                        products={paginatedProducts}
+                        selectedIds={selectedIds}
+                        onSelect={handleSelect}
+                        onSelectAll={handleSelectAll}
+                        sortConfig={sortConfig}
+                        onSort={handleSort}
+                        onEdit={(p) => {
+                            setEditingProduct(p);
+                            setIsFormOpen(true);
+                        }}
+                        onDelete={(id) => {
+                            setDeletingId(id);
+                            setIsDeleteOpen(true);
+                        }}
+                    />
+                    <Pagination 
+                        currentPage={currentPage}
+                        totalPages={totalPages}
+                        onPageChange={setCurrentPage}
+                        totalItems={filteredProducts.length}
+                        itemsPerPage={itemsPerPage}
+                        className="mt-6 rounded-[2.5rem] shadow-sm border-white/40 dark:border-zinc-800/50 bg-white/50 dark:bg-zinc-900/50"
+                    />
                 </div>
             )}
 
-            {/* Delete Confirm Modal */}
-            {isDeleteModalOpen && (
-                <div className="fixed inset-0 z-60 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 animate-in fade-in">
-                    <div className="bg-white rounded-2xl w-full max-w-sm p-6 shadow-xl text-center">
-                        <div className="w-16 h-16 bg-red-100 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4">
-                            <Trash2 className="w-8 h-8" />
+            {/* PRODUCT FORM */}
+            <ProductForm
+                isOpen={isFormOpen}
+                onClose={() => setIsFormOpen(false)}
+                onSubmit={handleSave}
+                initialData={editingProduct}
+                categories={categories}
+                isSubmitting={isSubmitting}
+            />
+
+            {/* DELETE CONFIRMATION */}
+            {isDeleteOpen && (
+                <div className="fixed inset-0 z-[200] flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4 animate-in fade-in duration-300">
+                    <div className="bg-white dark:bg-zinc-900 rounded-[3rem] w-full max-w-md p-12 shadow-2xl text-center border border-white dark:border-zinc-800 animate-in zoom-in-95 duration-300">
+                        <div className="w-24 h-24 bg-rose-50 dark:bg-rose-950/20 text-rose-600 dark:text-rose-400 rounded-[2.5rem] flex items-center justify-center mx-auto mb-8 border border-rose-100 dark:border-rose-900/30 shadow-lg shadow-rose-50">
+                            <Trash2 size={40} strokeWidth={1.5} />
                         </div>
-                        <h3 className="text-xl font-bold text-gray-900 mb-2">Xác nhận đơn</h3>
-                        <p className="text-gray-500 mb-6">
-                            Bạn có chắc chắn muốn xóa món ăn này không? Hành động này không thể hoàn tác.
+                        <h3 className="text-3xl font-black text-slate-900 dark:text-white mb-4 tracking-tight uppercase">Xác nhận xóa?</h3>
+                        <p className="text-slate-500 dark:text-slate-400 mb-10 font-bold text-sm leading-relaxed">
+                            {deletingId === 'bulk'
+                                ? `Bạn có chắc chắn muốn loại bỏ ${selectedIds.length} món ăn khỏi hệ thống không?`
+                                : 'Hành động này sẽ xóa vĩnh viễn món ăn khỏi thực đơn hiện hữu.'}
                         </p>
-                        <div className="flex gap-3">
+                        <div className="flex gap-4">
                             <button
-                                onClick={() => setIsDeleteModalOpen(false)}
+                                onClick={() => setIsDeleteOpen(false)}
                                 disabled={isSubmitting}
-                                className="flex-1 py-2.5 bg-gray-100 text-gray-700 font-medium rounded-xl hover:bg-gray-200 transition-colors"
+                                className="flex-1 h-16 rounded-2xl bg-white dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-xs font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-zinc-700 transition-all"
                             >
-                                Hủy
+                                Hủy bỏ
                             </button>
                             <button
-                                onClick={handleDelete}
+                                onClick={confirmDelete}
                                 disabled={isSubmitting}
-                                className="flex-1 py-2.5 bg-red-500 text-white font-medium rounded-xl hover:bg-red-600 transition-colors flex items-center justify-center gap-2"
+                                className="flex-1 h-16 rounded-2xl bg-rose-600 text-white text-xs font-black uppercase tracking-widest hover:bg-rose-700 shadow-xl shadow-rose-100 dark:shadow-none transition-all flex items-center justify-center gap-2"
                             >
-                                {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Xóa ngay'}
+                                {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Xác nhận xóa'}
                             </button>
                         </div>
                     </div>
                 </div>
             )}
-        </div>
+        </AdminLayout>
     );
 };
 

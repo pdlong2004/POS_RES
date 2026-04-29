@@ -15,8 +15,8 @@ const ScanQR = () => {
 
             const res = await axios.post('http://localhost:5000/api/table-auth/login-qr', { tableId: data.tableId });
 
-            localStorage.setItem('tableToken', res.data.token);
-            localStorage.setItem('tableInfo', JSON.stringify(res.data.table));
+            sessionStorage.setItem('tableToken', res.data.token);
+            sessionStorage.setItem('tableInfo', JSON.stringify(res.data.table));
 
             window.location.href = `/table/${data.tableId}`;
         } catch (error) {
@@ -36,3 +36,4 @@ const ScanQR = () => {
 };
 
 export default ScanQR;
+

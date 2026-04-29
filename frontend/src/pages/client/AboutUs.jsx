@@ -8,7 +8,7 @@ import Wrap04 from '../../components/client/AboutUs/Wrap04';
 
 const AboutUs = () => {
     return (
-        <div>
+        <div className="bg-[#1a0c08]">
             <Header />
             <Wrap01 />
             <Wrap02 />
@@ -20,3 +20,4 @@ const AboutUs = () => {
 };
 
 export default AboutUs;
+

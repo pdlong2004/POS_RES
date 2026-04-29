@@ -1,18 +1,8 @@
-import axios from 'axios';
-
-const API_URL = 'http://localhost:5001/api/imports';
-
-const getAuthHeaders = () => {
-    const token = localStorage.getItem('token');
-    return {
-        headers: { Authorization: `Bearer ${token}` },
-        withCredentials: true,
-    };
-};
+import api from '../lib/axois.js';
 
 export const getImportsApi = async () => {
     try {
-        const response = await axios.get(API_URL, getAuthHeaders());
+        const response = await api.get('/imports');
         return response.data;
     } catch (error) {
         throw error.response?.data || error.message;
@@ -21,7 +11,7 @@ export const getImportsApi = async () => {
 
 export const getImportDetailsApi = async (id) => {
     try {
-        const response = await axios.get(`${API_URL}/${id}`, getAuthHeaders());
+        const response = await api.get(`/imports/${id}`);
         return response.data;
     } catch (error) {
         throw error.response?.data || error.message;
@@ -30,7 +20,7 @@ export const getImportDetailsApi = async (id) => {
 
 export const createImportApi = async (data) => {
     try {
-        const response = await axios.post(API_URL, data, getAuthHeaders());
+        const response = await api.post('/imports', data);
         return response.data;
     } catch (error) {
         throw error.response?.data || error.message;

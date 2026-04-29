@@ -39,7 +39,9 @@ const ScanQR = () => {
             } catch {}
 
             const match = path.match(/\/(?:table-login|table)\/([a-f0-9]{24})/i);
-            const tableId = match?.[1] || (/^[a-f0-9]{24}$/i.test(decodedText.trim()) ? decodedText.trim() : null);
+            const tableId =
+                match?.[1] ||
+                (/^[a-f0-9]{24}$/i.test(decodedText.trim()) ? decodedText.trim() : null);
 
             if (!tableId) {
                 scannedRef.current = false;
@@ -77,25 +79,72 @@ const ScanQR = () => {
     }, [navigate, showToast]);
 
     return (
-        <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center p-4">
-            <h1 className="text-xl font-bold text-gray-800 mb-2">Quét mã QR tại bàn</h1>
+        <div className="min-h-screen bg-[#fffaf6] flex flex-col items-center justify-center p-6">
+            {/* Header card */}
+            <div className="w-full max-w-md mb-6 text-center">
+                <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-[#C8392B] text-white mb-4 shadow-lg shadow-[#C8392B]/30">
+                    <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={1.5}
+                            d="M12 4.5v15m7.5-7.5h-15"
+                        />
+                        <rect x="3" y="3" width="7" height="7" rx="1" strokeWidth={1.5} />
+                        <rect x="14" y="3" width="7" height="7" rx="1" strokeWidth={1.5} />
+                        <rect x="3" y="14" width="7" height="7" rx="1" strokeWidth={1.5} />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M14 14h2m0 0h3m-3 0v2m0 3h3m-7 0h2" />
+                    </svg>
+                </div>
+                <h1 className="text-2xl font-bold text-[#3d2314] mw-subheading mb-2">
+                    Quét mã QR tại bàn
+                </h1>
+                <p className="text-[#8c6a57] text-sm leading-relaxed">
+                    Đưa camera vào mã QR trên bàn để đăng nhập và bắt đầu gọi món
+                </p>
+            </div>
 
-            <p className="text-gray-500 text-sm mb-4 text-center">Đưa camera vào mã QR trên bàn để đăng nhập gọi món</p>
+            {/* QR Scanner box */}
+            <div className="w-full max-w-sm">
+                <div className="relative rounded-2xl overflow-hidden shadow-2xl border-4 border-white">
+                    <div
+                        id="qr-reader"
+                        className="w-full aspect-square bg-[#1a0c08]"
+                    />
+                    {/* Corner accents */}
+                    <div className="absolute inset-0 pointer-events-none">
+                        <div className="absolute top-4 left-4 w-8 h-8 border-t-3 border-l-3 border-[#C8392B] rounded-tl-lg" />
+                        <div className="absolute top-4 right-4 w-8 h-8 border-t-3 border-r-3 border-[#C8392B] rounded-tr-lg" />
+                        <div className="absolute bottom-4 left-4 w-8 h-8 border-b-3 border-l-3 border-[#C8392B] rounded-bl-lg" />
+                        <div className="absolute bottom-4 right-4 w-8 h-8 border-b-3 border-r-3 border-[#C8392B] rounded-br-lg" />
+                        {/* Scan line */}
+                        <div className="absolute left-8 right-8 h-0.5 bg-[#C8392B]/70 top-1/2 animate-pulse" />
+                    </div>
+                </div>
+            </div>
 
-            <div id="qr-reader" className="w-full max-w-md h-80 rounded-xl overflow-hidden shadow-lg bg-black" />
+            {/* Hint */}
+            <p className="mt-6 text-xs text-[#b89c8a] text-center max-w-xs">
+                Giữ điện thoại ổn định và đảm bảo ánh sáng đủ để quét mã QR
+            </p>
 
+            {/* Back button */}
             <button
                 type="button"
                 onClick={() => {
                     stopCameraSafe();
                     navigate(-1);
                 }}
-                className="mt-6 px-6 py-2 text-gray-600 hover:text-gray-800"
+                className="mt-6 flex items-center gap-2 text-sm text-[#8c6a57] hover:text-[#C8392B] transition-colors font-semibold"
             >
-                ← Quay lại
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                </svg>
+                Quay lại
             </button>
         </div>
     );
 };
 
 export default ScanQR;
+

@@ -12,7 +12,16 @@ export const getAllTables = async (req, res) => {
 
 export const createTable = async (req, res) => {
     try {
-        const emptyStatus = await StatusTable.findOne({ name: 'empty' });
+        let emptyStatus = await StatusTable.findOne({ code: 'empty' });
+
+        // Fallback if not found by code
+        if (!emptyStatus) {
+            emptyStatus = await StatusTable.findOne();
+        }
+
+        if (!emptyStatus) {
+            return res.status(400).json({ message: 'Hệ thống chưa cấu hình trạng thái bàn' });
+        }
 
         const table = await Table.create({
             ...req.body,

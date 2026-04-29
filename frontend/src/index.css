@@ -1,18 +1,192 @@
-@import url('https://fonts.googleapis.com/css2?family=Comfortaa:wght@300..700&family=Karla:ital,wght@0,200..800;1,200..800&family=Nunito:ital,wght@0,200..1000;1,200..1000&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Comfortaa:wght@300..700&family=Inter:wght@100..900&family=Outfit:wght@100..900&family=Karla:ital,wght@0,200..800;1,200..800&family=Nunito:ital,wght@0,200..1000;1,200..1000&family=Roboto:ital,wght@0,100..900;1,100..900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Cormorant+Garamond:ital,wght@0,300..700;1,300..700&display=swap');
 @import 'tailwindcss';
 @import 'tw-animate-css';
 
 @custom-variant dark (&:is(.dark *));
 @tailwind utilities;
 
+:root {
+    /* Studio Admin - Premium Glassmorphism Theme */
+    --admin-bg: #f8fafc;
+    --admin-card: rgba(255, 255, 255, 0.6);
+    --admin-card-foreground: #0f172a;
+    --admin-border: rgba(255, 255, 255, 0.6);
+    --admin-input: rgba(255, 255, 255, 0.5);
+    --admin-input-border: rgba(255, 255, 255, 0.6);
+    --admin-ring: #f97316;
+    --admin-primary: #f97316;
+    --admin-primary-foreground: #ffffff;
+    --admin-secondary: rgba(255, 255, 255, 0.4);
+    --admin-secondary-foreground: #475569;
+    --admin-muted: rgba(241, 245, 249, 0.5);
+    --admin-muted-foreground: #64748b;
+    --admin-accent: rgba(255, 255, 255, 0.8);
+    --admin-accent-foreground: #0f172a;
+    --admin-popover: rgba(255, 255, 255, 0.9);
+    --admin-popover-foreground: #0f172a;
+}
+
+.dark {
+    --admin-bg: #09090b;
+    --admin-card: rgba(24, 24, 27, 0.6);
+    --admin-card-foreground: #f4f4f5;
+    --admin-border: rgba(39, 39, 42, 0.6);
+    --admin-input: rgba(12, 12, 13, 0.5);
+    --admin-input-border: rgba(39, 39, 42, 0.6);
+    --admin-secondary: rgba(24, 24, 27, 0.4);
+    --admin-secondary-foreground: #e2e8f0;
+    --admin-muted: rgba(12, 12, 13, 0.5);
+    --admin-muted-foreground: #cbd5e1;
+    --admin-accent: rgba(24, 24, 27, 0.8);
+    --admin-accent-foreground: #f4f4f5;
+    --admin-popover: rgba(12, 12, 13, 0.9);
+    --admin-popover-foreground: #f4f4f5;
+}
+
+[data-theme='light'] {
+    /* Same as root for now as requested design is light-based glassmorphism */
+}
+
 body {
-    font-family: Karla, sans-serif;
-    @apply text-[#1d1f2e] text-base leading-7 font-normal;
+    font-family: 'Outfit', 'Inter', system-ui, sans-serif;
+    @apply text-slate-900 text-base leading-relaxed font-normal;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+.admin-body {
+    background:
+        radial-gradient(at 0% 0%, hsla(189, 100%, 56%, 0.1) 0%, transparent 50%),
+        radial-gradient(at 100% 0%, hsla(242, 100%, 70%, 0.1) 0%, transparent 50%),
+        radial-gradient(at 100% 100%, hsla(142, 70%, 70%, 0.1) 0%, transparent 50%),
+        radial-gradient(at 0% 100%, hsla(337, 70%, 70%, 0.1) 0%, transparent 50%), var(--admin-bg);
+    min-height: 100vh;
+    transition: background-color 0.5s ease;
+}
+
+@layer utilities {
+    .glass {
+        @apply bg-white/50 dark:bg-slate-900/50 backdrop-blur-xl border border-white/40 dark:border-slate-700/30 shadow-[0_8px_32px_0_rgba(0,0,0,0.04)] dark:shadow-none;
+    }
+    .glass-card {
+        @apply bg-white/60 dark:bg-slate-900/60 backdrop-blur-lg border border-white/50 dark:border-slate-800 shadow-sm hover:shadow-md transition-shadow;
+    }
+
+    /* Manwah Restaurant Theme */
+    .mw-heading {
+        font-family: 'Playfair Display', 'Cormorant Garamond', Georgia, serif;
+        font-style: italic;
+    }
+    .mw-subheading {
+        font-family: 'Playfair Display', Georgia, serif;
+    }
+    .mw-section-title {
+        @apply text-3xl md:text-4xl font-bold text-center mb-2;
+        font-family: 'Playfair Display', Georgia, serif;
+    }
+    .mw-section-divider {
+        @apply flex items-center gap-3 justify-center mb-10;
+    }
+    .mw-btn-primary {
+        @apply inline-flex items-center justify-center gap-2 px-8 py-3.5 bg-[#C8392B] text-white font-bold rounded-full
+               hover:bg-[#a62d21] hover:-translate-y-0.5 active:scale-95
+               transition-all duration-300 shadow-lg shadow-[#C8392B]/30
+               text-sm tracking-wide uppercase;
+    }
+    .mw-btn-outline {
+        @apply inline-flex items-center justify-center gap-2 px-8 py-3.5 bg-transparent text-[#C8392B] font-bold rounded-full
+               border-2 border-[#C8392B] hover:bg-[#C8392B] hover:text-white hover:-translate-y-0.5 active:scale-95
+               transition-all duration-300 text-sm tracking-wide uppercase;
+    }
+    .mw-btn-orange {
+        @apply inline-flex items-center justify-center gap-2 px-8 py-3.5 bg-[#F89520] text-white font-bold rounded-full
+               hover:bg-[#e07d10] hover:-translate-y-0.5 active:scale-95
+               transition-all duration-300 shadow-lg shadow-[#F89520]/30
+               text-sm tracking-wide uppercase;
+    }
+    .mw-card {
+        @apply bg-white rounded-2xl shadow-md border border-[#f5e8d8] overflow-hidden
+               hover:shadow-xl hover:-translate-y-1 transition-all duration-300;
+    }
+    .mw-input {
+        @apply w-full px-4 py-3 rounded-xl border border-[#e8d5c4] bg-[#fffaf6]
+               focus:outline-none focus:border-[#C8392B] focus:ring-2 focus:ring-[#C8392B]/20
+               text-[#3d2314] placeholder-[#b89c8a] transition-all;
+    }
+    .mw-select {
+        @apply w-full px-4 py-3 rounded-xl border border-[#e8d5c4] bg-[#fffaf6]
+               focus:outline-none focus:border-[#C8392B] focus:ring-2 focus:ring-[#C8392B]/20
+               text-[#3d2314] transition-all appearance-none cursor-pointer;
+    }
+    .mw-badge {
+        @apply inline-flex items-center px-3 py-1 rounded-full text-xs font-bold
+               bg-[#fdf0e8] text-[#C8392B] border border-[#f5d5c0];
+    }
+    .mw-price {
+        @apply text-[#C8392B] font-bold;
+        font-family: 'Playfair Display', Georgia, serif;
+    }
+    .mw-tag {
+        @apply text-xs font-bold uppercase tracking-widest text-[#C8392B];
+    }
+    .mw-hero-overlay {
+        background: linear-gradient(to bottom, rgba(26, 12, 8, 0.3) 0%, rgba(26, 12, 8, 0.6) 100%);
+    }
+    .mw-section-bg {
+        background-color: #fffaf6;
+    }
+    .mw-section-bg-warm {
+        background-color: #fdf5ec;
+    }
+    .mw-pattern-bg {
+        background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23C8392B' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    }
+    .mw-divider-ornament::before,
+    .mw-divider-ornament::after {
+        content: '';
+        @apply flex-1 h-px bg-gradient-to-r from-transparent via-[#e8d5c4] to-transparent;
+    }
+    .scrollbar-hide {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+    .scrollbar-hide::-webkit-scrollbar {
+        display: none;
+    }
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+::selection {
+    background-color: #f8952040;
+    color: #ea580c;
+}
+
+/* Beautiful Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+::-webkit-scrollbar-thumb {
+    @apply bg-slate-300 dark:bg-slate-700 rounded-full;
+}
+::-webkit-scrollbar-thumb:hover {
+    @apply bg-slate-400 dark:bg-slate-600;
 }
 
 @theme {
     --color-primary: #f89520;
+    --color-manwah-red: #c8392b;
+    --color-manwah-amber: #f89520;
+    --color-manwah-cream: #fffaf6;
+    --color-manwah-brown: #3d2314;
     --font-addington: 'SVN-Addington', serif;
+    --font-playfair: 'Playfair Display', serif;
 }
 
 @keyframes slideIn {
@@ -147,4 +321,223 @@ body {
     body {
         @apply bg-background text-foreground overflow-x-hidden;
     }
+}
+
+/* ==========================================================================
+   ADMIN UI UTILITIES
+   ========================================================================== */
+
+.admin-glass {
+    background: rgba(255, 255, 255, 0.4);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
+}
+
+.admin-card {
+    background: var(--admin-card);
+    backdrop-filter: blur(12px);
+    border: 1px solid var(--admin-border);
+    border-radius: 2rem;
+    box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.admin-card:hover {
+    border-color: rgba(249, 115, 22, 0.3);
+    transform: translateY(-2px);
+    box-shadow:
+        0 10px 15px -3px rgb(0 0 0 / 0.1),
+        0 4px 6px -4px rgb(0 0 0 / 0.1);
+}
+
+.admin-table-container {
+    width: 100%;
+    overflow-x: auto;
+    border: 1px solid var(--admin-border);
+    border-radius: 1rem;
+    background: var(--admin-card);
+    -webkit-overflow-scrolling: touch;
+}
+
+.admin-grid {
+    display: grid;
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+    gap: 1.5rem;
+}
+
+@media (min-width: 768px) {
+    .admin-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (min-width: 1280px) {
+    .admin-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+
+@media (min-width: 1536px) {
+    .admin-grid {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+}
+
+.admin-content-padding {
+    padding: 1rem;
+}
+
+@media (min-width: 768px) {
+    .admin-content-padding {
+        padding: 1.5rem;
+    }
+}
+
+@media (min-width: 1024px) {
+    .admin-content-padding {
+        padding: 2rem;
+    }
+}
+
+.admin-table {
+    width: 100%;
+    text-align: left;
+    border-collapse: collapse;
+    font-size: 0.8125rem;
+    min-width: 800px;
+}
+
+.admin-th {
+    padding: 1.25rem 1rem;
+    background: var(--admin-muted);
+    font-weight: 600;
+    color: var(--admin-muted-foreground);
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.05em;
+    border-bottom: 1px solid var(--admin-border);
+}
+
+.admin-td {
+    padding: 1.25rem 1rem;
+    color: var(--admin-card-foreground);
+    border-bottom: 1px solid var(--admin-border);
+    transition: background-color 0.15s ease;
+}
+
+.admin-tr:hover .admin-td {
+    background: var(--admin-accent);
+}
+
+.admin-tr:last-child .admin-td {
+    border-bottom: none;
+}
+
+.admin-input {
+    width: 100%;
+    background: var(--admin-input);
+    backdrop-filter: blur(8px);
+    border: 1px solid var(--admin-input-border);
+    color: var(--admin-card-foreground);
+    padding: 0.75rem 1rem 0.75rem 3rem;
+    border-radius: 1.5rem;
+    font-size: 0.875rem;
+    outline: none;
+    transition: all 0.3s;
+}
+
+.admin-input:focus {
+    border-color: #6366f1;
+    background: rgba(255, 255, 255, 0.8);
+    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+}
+
+.admin-btn-primary {
+    background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border-radius: 1.25rem;
+    font-weight: 600;
+    font-size: 0.875rem;
+    transition: all 0.3s;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 10px 20px -5px rgba(99, 102, 241, 0.4);
+}
+
+.admin-btn-primary:hover {
+    filter: brightness(1.1);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(249, 115, 22, 0.2);
+}
+
+.admin-btn-secondary {
+    background: var(--admin-secondary);
+    color: var(--admin-secondary-foreground);
+    padding: 0.625rem 1.25rem;
+    border-radius: 0.75rem;
+    font-weight: 600;
+    font-size: 0.875rem;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    border: 1px solid var(--admin-border);
+    cursor: pointer;
+}
+
+.admin-btn-secondary:hover {
+    background: var(--admin-accent);
+    border-color: var(--admin-muted-foreground);
+}
+
+.admin-badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    line-height: 1;
+    white-space: nowrap;
+}
+
+.admin-badge-success {
+    background: rgba(34, 197, 94, 0.1);
+    color: #22c55e;
+    border: 1px solid rgba(34, 197, 94, 0.2);
+}
+
+.admin-badge-warning {
+    background: rgba(234, 179, 8, 0.1);
+    color: #eab308;
+    border: 1px solid rgba(234, 179, 8, 0.2);
+}
+
+.admin-badge-danger {
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+    border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+.admin-page-header {
+    margin-bottom: 2rem;
+}
+
+.admin-page-title {
+    font-size: 1.875rem;
+    font-weight: 700;
+    color: var(--admin-card-foreground);
+}
+
+.admin-page-subtitle {
+    color: var(--admin-muted-foreground);
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
 }

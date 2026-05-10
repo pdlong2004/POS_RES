@@ -7,6 +7,7 @@
     "build:frontend": "npm run build --prefix frontend",
     "start:backend": "npm start --prefix backend",
     "dev": "npx concurrently \"npm run dev --prefix frontend\" \"npm run dev --prefix backend\"",
+    "start": "npm start --prefix backend",
     "render-build:frontend": "npm install --prefix frontend && npm run build --prefix frontend",
     "render-start:backend": "npm install --prefix backend && npm start --prefix backend"
   },

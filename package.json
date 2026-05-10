@@ -11,6 +11,7 @@
     "build:frontend": "npm run build -w frontend",
     "start:backend": "npm start -w backend",
     "dev": "npx concurrently \"npm run dev -w frontend\" \"npm run dev -w backend\"",
+    "build": "npm run build -w frontend",
     "start": "npm start -w backend",
     "render-build:frontend": "npm install && npm run build -w frontend",
     "render-start:backend": "npm install && npm start -w backend"

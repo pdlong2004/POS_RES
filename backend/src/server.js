@@ -28,11 +28,26 @@ app.use(
     }),
 );
 
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 // Middleware
 app.use(express.json());
 
 // API routes
 routes(app);
+
+// Serve Frontend Static Files
+const frontendPath = path.join(__dirname, '../../../frontend/dist');
+app.use(express.static(frontendPath));
+
+// Handle SPA routing
+app.get('*', (req, res) => {
+    res.sendFile(path.join(frontendPath, 'index.html'));
+});
 
 connectDB()
     .then(() => {

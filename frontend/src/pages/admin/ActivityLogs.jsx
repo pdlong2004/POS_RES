@@ -196,13 +196,8 @@ const ActivityLogs = () => {
 
                     <div className="divide-y divide-slate-50">
                         {loading ? (
-                            <div className="p-40 text-center">
-                                <div className="flex flex-col items-center gap-6">
-                                    <RefreshCw size={48} className="text-orange-600 animate-spin" />
-                                    <p className="text-slate-300 text-[10px] font-black uppercase tracking-widest animate-pulse">
-                                        Đang giải mã bản ghi thực thể...
-                                    </p>
-                                </div>
+                            <div>
+                                <AdminLoading message="Đang tải nhật ký hoạt động..." />
                             </div>
                         ) : filteredLogs.length === 0 ? (
                             <div className="p-40 text-center opacity-30">

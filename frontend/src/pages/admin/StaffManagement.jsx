@@ -316,9 +316,9 @@ const StaffManagement = () => {
 
             {/* DRAWER MODAL */}
             {showModal && (
-                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm animate-in fade-in duration-300">
-                    <div className="bg-white/95 dark:bg-zinc-900/95 backdrop-blur-xl w-full max-w-2xl rounded-[3rem] shadow-2xl overflow-hidden border border-white dark:border-zinc-800 animate-in zoom-in-95 duration-500 flex flex-col max-h-[90vh]">
-                        <div className="p-10 border-b border-slate-100 dark:border-zinc-800 flex items-center justify-between bg-white/50 dark:bg-zinc-800/50">
+                <div className="fixed inset-0 z-[100] flex justify-end bg-slate-900/40 animate-in fade-in duration-150">
+                    <div className="h-full w-full max-w-xl bg-white dark:bg-zinc-900 shadow-2xl overflow-hidden border-l border-slate-200 dark:border-zinc-800 animate-in slide-in-from-right duration-200 flex flex-col">
+                        <div className="p-6 border-b border-slate-100 dark:border-zinc-800 flex items-center justify-between bg-white dark:bg-zinc-900">
                             <div className="flex items-center gap-5">
                                 <div className="w-14 h-14 rounded-2xl bg-orange-600 dark:bg-orange-500 flex items-center justify-center text-white shadow-lg shadow-orange-100 dark:shadow-none">
                                     <Contact size={28} />
@@ -328,7 +328,7 @@ const StaffManagement = () => {
                                         {editingStaff ? 'Hiệu chỉnh hồ sơ' : 'Khởi tạo nhân sự'}
                                     </h2>
                                     <p className="text-orange-600 dark:text-orange-500 text-[10px] font-black uppercase tracking-[0.2em] mt-1">
-                                        Human Capital Infrastructure
+                                        Thông tin nhân sự
                                     </p>
                                 </div>
                             </div>
@@ -337,7 +337,7 @@ const StaffManagement = () => {
                             </button>
                         </div>
 
-                        <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-10 space-y-10 scrollbar-hide bg-white/50 dark:bg-zinc-900/50">
+                        <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-6 space-y-8 bg-white dark:bg-zinc-900">
                             <div className="grid grid-cols-2 gap-8">
                                 <div className="space-y-4">
                                     <label className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest px-1">Họ và tên nhân sự <span className="text-rose-500">*</span></label>
@@ -446,7 +446,7 @@ const StaffManagement = () => {
                                 )}
                             </div>
 
-                            <div className="p-8 bg-orange-50 dark:bg-orange-950/20 border border-orange-100 dark:border-orange-900/30 rounded-[2.5rem] flex items-start gap-6 relative overflow-hidden group">
+                            <div className="p-6 bg-orange-50 dark:bg-orange-950/20 border border-orange-100 dark:border-orange-900/30 rounded-2xl flex items-start gap-5 relative overflow-hidden group">
                                 <div className="absolute top-0 right-0 w-32 h-32 bg-orange-200/20 rounded-full -mr-16 -mt-16 blur-3xl" />
                                 <div className="w-14 h-14 rounded-2xl bg-white dark:bg-zinc-900 flex items-center justify-center text-orange-600 dark:text-orange-500 shadow-sm group-hover:scale-110 transition-transform duration-500">
                                     <Shield size={24} />
@@ -462,7 +462,7 @@ const StaffManagement = () => {
                             </div>
                         </form>
 
-                        <div className="p-10 border-t border-slate-100 dark:border-zinc-800 bg-white/50 dark:bg-zinc-900/50 flex gap-6">
+                        <div className="p-6 border-t border-slate-100 dark:border-zinc-800 bg-slate-50 dark:bg-zinc-800/50 flex gap-4">
                                 <button
                                     type="button"
                                     onClick={() => setShowModal(false)}

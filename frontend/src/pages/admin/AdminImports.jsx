@@ -241,10 +241,7 @@ const AdminImports = () => {
             <div className="animate-in fade-in slide-in-from-bottom-4 duration-700 delay-300">
                 {loading ? (
                     <div className="admin-card py-32 flex flex-col items-center justify-center border-white/40 rounded-[2.5rem]">
-                        <RefreshCw className="h-10 w-10 text-orange-600 animate-spin" />
-                        <p className="text-slate-400 font-bold uppercase tracking-widest text-xs mt-6 animate-pulse">
-                            Đang ánh xạ lịch sử vận hành kho...
-                        </p>
+                        <AdminLoading message="Đang tải phiếu nhập kho..." className="min-h-0 py-0" />
                     </div>
                 ) : filteredImports.length === 0 ? (
                     <div className="admin-card py-32 flex flex-col items-center justify-center border-white/40 rounded-[2.5rem]">
@@ -315,9 +312,9 @@ const AdminImports = () => {
 
             {/* CREATE MODAL */}
             {isCreateModalOpen && (
-                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm animate-in fade-in duration-300">
-                    <div className="bg-white/95 backdrop-blur-xl w-full max-w-5xl rounded-[3rem] shadow-2xl overflow-hidden border border-white animate-in zoom-in-95 duration-500 flex flex-col h-[90vh]">
-                        <div className="p-10 border-b border-slate-100 flex items-center justify-between bg-white/50">
+                <div className="fixed inset-0 z-[100] flex justify-end bg-slate-900/40 animate-in fade-in duration-150">
+                    <div className="h-full w-full max-w-6xl bg-white shadow-2xl overflow-hidden border-l border-slate-200 animate-in slide-in-from-right duration-200 flex flex-col">
+                        <div className="p-6 border-b border-slate-100 flex items-center justify-between bg-white">
                             <div className="flex items-center gap-5">
                                 <div className="w-14 h-14 rounded-2xl bg-orange-600 flex items-center justify-center text-white shadow-lg shadow-orange-100">
                                     <TrendingUp size={28} />
@@ -327,7 +324,7 @@ const AdminImports = () => {
                                         Khởi tạo phiếu nhập kho
                                     </h2>
                                     <p className="text-orange-600 text-[10px] font-black uppercase tracking-[0.2em] mt-1">
-                                        Inventory Matrix Synchronization
+                                        Thông tin phiếu nhập
                                     </p>
                                 </div>
                             </div>
@@ -338,7 +335,7 @@ const AdminImports = () => {
 
                         <div className="flex-1 overflow-hidden flex flex-col lg:flex-row">
                             {/* LEFT: FORM INPUT */}
-                            <div className="w-full lg:w-5/12 p-10 border-r border-slate-100 overflow-y-auto scrollbar-hide space-y-10 bg-slate-50/50">
+                            <div className="w-full lg:w-5/12 p-6 border-r border-slate-100 overflow-y-auto space-y-8 bg-slate-50/50">
                                 <div className="space-y-4">
                                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">
                                         Đối tác cung ứng chiến lược <span className="text-rose-500">*</span>
@@ -429,7 +426,7 @@ const AdminImports = () => {
                             </div>
 
                             {/* RIGHT: ITEMS REVIEW */}
-                            <div className="flex-1 p-10 overflow-y-auto scrollbar-hide flex flex-col bg-white">
+                            <div className="flex-1 p-6 overflow-y-auto flex flex-col bg-white">
                                 <div className="flex items-center justify-between mb-10">
                                     <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest flex items-center gap-3">
                                         <Box size={20} className="text-orange-600" /> Bản kê khai hàng nhập

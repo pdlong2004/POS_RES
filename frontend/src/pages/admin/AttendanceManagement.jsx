@@ -251,13 +251,8 @@ const AttendanceManagement = () => {
                             <tbody className="divide-y divide-slate-50 dark:divide-zinc-800">
                                 {loading ? (
                                     <tr>
-                                        <td colSpan="6" className="px-8 py-40 text-center">
-                                            <div className="flex flex-col items-center gap-5">
-                                                <RefreshCw size={40} className="text-orange-600 dark:text-orange-500 animate-spin" />
-                                                <p className="text-slate-400 dark:text-slate-500 text-[10px] font-black uppercase tracking-widest animate-pulse">
-                                                    Đang ánh xạ dữ liệu chấm công...
-                                                </p>
-                                            </div>
+                                        <td colSpan="6" className="p-0">
+                                            <AdminLoading message="Đang tải dữ liệu chấm công..." />
                                         </td>
                                     </tr>
                                 ) : filteredSchedule.length === 0 ? (

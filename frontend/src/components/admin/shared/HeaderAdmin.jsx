@@ -4,17 +4,15 @@ import axios from 'axios';
 import {
     LogOut,
     Bell,
-    Settings,
     User,
-    CheckCircle2,
     Sun,
     Moon,
     Search,
-    Command,
     Menu,
     X as CloseIcon,
     ChevronRight,
     RefreshCw,
+    Shield,
 } from 'lucide-react';
 import { socket } from '../../../socket.js';
 import { getNotificationsApi, markAsReadApi, markAllAsReadApi } from '../../../service/notification.service.js';
@@ -166,11 +164,12 @@ const HeaderAdmin = () => {
     }, [searchQuery, allProducts]);
 
     return (
-        <header className="sticky top-0 z-[60] w-full h-20 bg-white/30 dark:bg-zinc-900/30 backdrop-blur-xl border-b border-white/20 dark:border-zinc-800/50 flex items-center px-8 gap-8 transition-all duration-300">
+        <header className="sticky top-0 z-[60] w-full h-16 md:h-[4.5rem] bg-white/95 dark:bg-zinc-950/95 supports-[backdrop-filter]:bg-white/85 supports-[backdrop-filter]:dark:bg-zinc-950/85 supports-[backdrop-filter]:backdrop-blur-md border-b border-slate-200/80 dark:border-zinc-800 flex items-center px-4 md:px-6 gap-4 md:gap-6 transition-colors duration-200">
             {/* Mobile Toggle */}
             <button
                 onClick={toggleSidebar}
-                className="lg:hidden p-2 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-white/50 dark:hover:bg-zinc-800/50 rounded-xl transition-all"
+                className="lg:hidden p-2 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-zinc-800 rounded-xl transition-colors"
+                aria-label={isSidebarOpen ? 'Đóng menu' : 'Mở menu'}
             >
             {isSidebarOpen ? <CloseIcon size={20} /> : <Menu size={20} />}
             </button>
@@ -194,14 +193,14 @@ const HeaderAdmin = () => {
             <div className="hidden lg:flex flex-1 max-w-2xl relative" data-search-area>
                 <div
                     onClick={() => setShowSearchModal(true)}
-                    className="w-full flex items-center bg-white/50 dark:bg-zinc-900/50 border border-white/60 dark:border-zinc-800/50 rounded-2xl px-6 py-3 gap-4 cursor-text hover:bg-white/80 dark:hover:bg-zinc-800/80 hover:border-orange-200 dark:hover:border-orange-900/50 transition-all duration-300"
+                    className="w-full flex items-center bg-slate-100/80 dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-xl px-5 py-2.5 gap-3 cursor-text hover:bg-white dark:hover:bg-zinc-800 hover:border-orange-200 dark:hover:border-orange-900/50 transition-colors duration-200"
                 >
                     <Search size={20} className="text-slate-400 dark:text-slate-400" />
                     <span className="text-sm font-semibold text-slate-400 dark:text-slate-400 flex-1">Tìm kiếm sản phẩm, đơn hàng hoặc nhân sự...</span>
                 </div>
 
                 {showSearchModal && (
-                    <div className="absolute top-0 left-0 w-full bg-white/95 dark:bg-zinc-900/95 backdrop-blur-xl border border-white dark:border-zinc-800 rounded-3xl shadow-2xl z-[100] p-4 animate-in fade-in zoom-in-95 duration-300">
+                    <div className="absolute top-0 left-0 w-full bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl shadow-xl z-[100] p-4 animate-in fade-in zoom-in-95 duration-150">
                         <div className="flex items-center gap-4 px-4 py-2 border-b border-slate-100 dark:border-zinc-800 mb-4">
                             <Search size={20} className="text-orange-500" />
                             <input
@@ -240,7 +239,7 @@ const HeaderAdmin = () => {
                                             navigate('/admin/products');
                                             setShowSearchModal(false);
                                         }}
-                                        className="flex items-center gap-4 p-4 hover:bg-orange-50 dark:hover:bg-orange-950/20 rounded-2xl cursor-pointer group transition-all"
+                                        className="flex items-center gap-4 p-3 hover:bg-orange-50 dark:hover:bg-orange-950/20 rounded-xl cursor-pointer group transition-colors"
                                     >
                                         <div className="w-12 h-12 rounded-xl bg-white border border-slate-100 overflow-hidden flex items-center justify-center">
                                             {product.image ? (
@@ -282,7 +281,8 @@ const HeaderAdmin = () => {
                 {/* Theme Toggle */}
                 <button
                     onClick={toggleTheme}
-                    className="p-2.5 rounded-2xl text-slate-500 dark:text-slate-400 hover:text-orange-600 dark:hover:text-orange-500 hover:bg-white dark:hover:bg-zinc-800 transition-all duration-300"
+                    className="p-2.5 rounded-xl text-slate-500 dark:text-slate-400 hover:text-orange-600 dark:hover:text-orange-500 hover:bg-slate-100 dark:hover:bg-zinc-800 transition-colors duration-200"
+                    aria-label="Đổi giao diện sáng tối"
                 >
                     {theme === 'dark' ? <Sun size={22} /> : <Moon size={22} />}
                 </button>
@@ -297,9 +297,10 @@ const HeaderAdmin = () => {
                         className={cn(
                             'relative p-2.5 rounded-2xl transition-all duration-300',
                             isNotificationOpen
-                                ? 'bg-white dark:bg-zinc-800 text-orange-600 shadow-lg'
-                                : 'text-slate-500 dark:text-slate-400 hover:text-orange-600 dark:hover:text-orange-500 hover:bg-white dark:hover:bg-zinc-800',
+                                ? 'bg-slate-100 dark:bg-zinc-800 text-orange-600'
+                                : 'text-slate-500 dark:text-slate-400 hover:text-orange-600 dark:hover:text-orange-500 hover:bg-slate-100 dark:hover:bg-zinc-800',
                         )}
+                        aria-label="Thông báo"
                     >
                         <Bell size={22} />
                         {unreadCount > 0 && (
@@ -310,8 +311,8 @@ const HeaderAdmin = () => {
                     </button>
 
                     {isNotificationOpen && (
-                        <div className="absolute right-0 mt-6 w-96 bg-white/90 dark:bg-zinc-900/90 backdrop-blur-xl border border-white dark:border-zinc-800 rounded-[2rem] overflow-hidden z-[70] shadow-2xl animate-in slide-in-from-top-4 zoom-in-95 duration-500">
-                            <div className="px-8 py-6 border-b border-slate-50 dark:border-zinc-800 bg-white/50 dark:bg-zinc-900/50 flex justify-between items-center">
+                        <div className="absolute right-0 mt-4 w-[min(24rem,calc(100vw-2rem))] bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl overflow-hidden z-[70] shadow-xl animate-in fade-in zoom-in-95 duration-150">
+                            <div className="px-5 py-4 border-b border-slate-100 dark:border-zinc-800 bg-slate-50 dark:bg-zinc-900 flex justify-between items-center gap-4">
                                 <h3 className="font-bold text-slate-900 dark:text-white text-sm uppercase tracking-widest">
                                     Notifications
                                 </h3>
@@ -322,14 +323,14 @@ const HeaderAdmin = () => {
                                     Mark all as read
                                 </button>
                             </div>
-                            <div className="max-h-96 overflow-y-auto scrollbar-hide divide-y divide-slate-50 dark:divide-zinc-800">
+                            <div className="max-h-96 overflow-y-auto divide-y divide-slate-100 dark:divide-zinc-800">
                                 {notifications.length > 0 ? (
                                     notifications.map((notif) => (
                                         <div
                                             key={notif._id}
                                             onClick={() => handleNotificationClick(notif)}
                                             className={cn(
-                                                'px-8 py-6 cursor-pointer hover:bg-orange-50/50 dark:hover:bg-orange-950/20 transition-all duration-300 group',
+                                                'px-5 py-4 cursor-pointer hover:bg-orange-50/50 dark:hover:bg-orange-950/20 transition-colors duration-150 group',
                                                 !notif.isRead && 'bg-orange-50/20 dark:bg-orange-950/10',
                                             )}
                                         >
@@ -376,7 +377,8 @@ const HeaderAdmin = () => {
                             setIsDropdownOpen(!isDropdownOpen);
                             setIsNotificationOpen(false);
                         }}
-                        className="flex items-center gap-4 group"
+                        className="flex items-center gap-3 group"
+                        aria-label="Mở tài khoản"
                     >
                         <div className="text-right hidden sm:block">
                             <p className="text-sm font-bold text-slate-900 dark:text-white leading-none mb-1">
@@ -386,14 +388,14 @@ const HeaderAdmin = () => {
                                 {user?.roleId?.name || 'PRO ACCOUNT'}
                             </span>
                         </div>
-                        <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-orange-500 to-amber-600 flex items-center justify-center font-bold text-white text-lg shadow-xl shadow-orange-100 group-hover:scale-105 transition-all">
+                        <div className="w-10 h-10 rounded-xl bg-orange-600 flex items-center justify-center font-bold text-white text-base shadow-sm">
                             {user?.name?.charAt(0)?.toUpperCase() || 'A'}
                         </div>
                     </button>
 
                     {isDropdownOpen && (
-                        <div className="absolute right-0 mt-6 w-72 bg-white/95 dark:bg-zinc-900/95 backdrop-blur-xl border border-white dark:border-zinc-800 rounded-[2rem] overflow-hidden z-[70] shadow-2xl animate-in zoom-in-95 duration-500">
-                             <div className="px-8 py-8 bg-slate-50/50 dark:bg-zinc-800/50 border-b border-slate-100 dark:border-zinc-800">
+                        <div className="absolute right-0 mt-4 w-72 bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl overflow-hidden z-[70] shadow-xl animate-in fade-in zoom-in-95 duration-150">
+                             <div className="px-6 py-6 bg-slate-50 dark:bg-zinc-800/50 border-b border-slate-100 dark:border-zinc-800">
                                 <div className="flex items-center gap-4">
                                     <div className="w-14 h-14 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 flex items-center justify-center font-bold text-xl text-orange-600 shadow-sm">
                                         {user?.name?.charAt(0)?.toUpperCase() || 'A'}
@@ -410,14 +412,14 @@ const HeaderAdmin = () => {
                                 <NavLink
                                     to="/admin/profile"
                                     onClick={() => setIsDropdownOpen(false)}
-                                    className="flex items-center gap-4 px-6 py-4 text-sm font-bold text-slate-500 dark:text-slate-400 hover:bg-orange-50 dark:hover:bg-orange-950/20 hover:text-orange-600 rounded-2xl transition-all"
+                                    className="flex items-center gap-4 px-4 py-3 text-sm font-bold text-slate-500 dark:text-slate-400 hover:bg-orange-50 dark:hover:bg-orange-950/20 hover:text-orange-600 rounded-xl transition-colors"
                                 >
                                     <User size={18} /> Profile
                                 </NavLink>
                                 <NavLink
                                     to="/admin/settings"
                                     onClick={() => setIsDropdownOpen(false)}
-                                    className="flex items-center gap-4 px-6 py-4 text-sm font-bold text-slate-500 dark:text-slate-400 hover:bg-orange-50 dark:hover:bg-orange-950/20 hover:text-orange-600 rounded-2xl transition-all"
+                                    className="flex items-center gap-4 px-4 py-3 text-sm font-bold text-slate-500 dark:text-slate-400 hover:bg-orange-50 dark:hover:bg-orange-950/20 hover:text-orange-600 rounded-xl transition-colors"
                                 >
                                     <Shield size={18} /> Settings
                                 </NavLink>
@@ -428,7 +430,7 @@ const HeaderAdmin = () => {
                                         if (logout) logout();
                                         navigate('/admin');
                                     }}
-                                    className="w-full flex items-center gap-4 px-6 py-4 text-sm font-bold text-red-500 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-2xl transition-all"
+                                    className="w-full flex items-center gap-4 px-4 py-3 text-sm font-bold text-red-500 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-xl transition-colors"
                                 >
                                     <LogOut size={18} /> Logout
                                 </button>

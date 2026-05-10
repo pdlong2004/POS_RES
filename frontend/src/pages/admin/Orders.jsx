@@ -176,7 +176,7 @@ const AdminOrders = () => {
                 <div className="space-y-1">
                     <h1 className="text-4xl font-black tracking-tight text-slate-900 dark:text-white">Hóa đơn</h1>
                     <p className="text-slate-500 dark:text-slate-400 font-bold text-sm">
-                        Hệ thống trích xuất và quản lý dòng tiền vận hành nhà hàng.
+                        Tra cứu hóa đơn, trạng thái thanh toán và tổng tiền.
                     </p>
                 </div>
                 <div className="flex items-center gap-4 w-full lg:w-auto">
@@ -188,8 +188,8 @@ const AdminOrders = () => {
                         <RefreshCw size={18} className={cn(loading && 'animate-spin')} />
                     </button>
                     <div className="flex items-center gap-2 text-xs font-black text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/20 px-6 py-3 rounded-2xl border border-emerald-100 dark:border-emerald-900/30 uppercase tracking-widest">
-                        <div className="w-2 h-2 rounded-full bg-emerald-600 dark:bg-emerald-400 animate-pulse" />
-                        Live Monitoring
+                        <div className="w-2 h-2 rounded-full bg-emerald-600 dark:bg-emerald-400" />
+                        Đang hoạt động
                     </div>
                 </div>
             </div>
@@ -228,11 +228,11 @@ const AdminOrders = () => {
                 ].map((stat, i) => (
                     <div
                         key={i}
-                        className="admin-card p-8 group hover:border-orange-400/40 dark:hover:border-orange-500/40 transition-all duration-500 bg-white/50 dark:bg-zinc-900/50"
+                        className="admin-card p-6 group hover:border-orange-400/40 dark:hover:border-orange-500/40 transition-colors bg-white/50 dark:bg-zinc-900/50"
                     >
-                        <div className="flex items-center gap-6">
-                            <div className={cn("w-16 h-16 rounded-[2rem] flex items-center justify-center shadow-lg dark:shadow-none group-hover:scale-110 transition-transform duration-500", stat.bg, stat.color, "dark:bg-opacity-20")}>
-                                <stat.icon size={28} />
+                        <div className="flex items-center gap-4">
+                            <div className={cn("w-12 h-12 rounded-xl flex items-center justify-center shadow-sm dark:shadow-none", stat.bg, stat.color, "dark:bg-opacity-20")}>
+                                <stat.icon size={22} />
                             </div>
                             <div>
                                 <p className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">
@@ -299,13 +299,8 @@ const AdminOrders = () => {
                             <tbody className="divide-y divide-slate-50 dark:divide-zinc-800">
                                 {loading ? (
                                     <tr>
-                                        <td colSpan="7" className="px-8 py-32 text-center">
-                                            <div className="flex flex-col items-center gap-4">
-                                                <RefreshCw className="h-8 w-8 text-orange-600 animate-spin" />
-                                                <p className="text-slate-400 font-bold uppercase tracking-widest text-xs animate-pulse">
-                                                    Đang truy xuất dữ liệu...
-                                                </p>
-                                            </div>
+                                        <td colSpan="7" className="p-0">
+                                            <AdminLoading message="Đang tải hóa đơn..." />
                                         </td>
                                     </tr>
                                 ) : filtered.length === 0 ? (

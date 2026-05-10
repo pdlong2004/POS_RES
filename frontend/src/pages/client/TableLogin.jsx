@@ -72,7 +72,10 @@ const TableLogin = () => {
                 <div className="relative mb-8">
                     <div className="w-20 h-20 border-4 border-white/10 rounded-full" />
                     <div className="absolute inset-0 w-20 h-20 border-4 border-[#C8392B] border-t-transparent rounded-full animate-spin" />
-                    <div className="absolute inset-3 w-14 h-14 border-4 border-[#F89520]/30 border-b-transparent rounded-full animate-spin" style={{ animationDuration: '1.5s', animationDirection: 'reverse' }} />
+                    <div
+                        className="absolute inset-3 w-14 h-14 border-4 border-[#F89520]/30 border-b-transparent rounded-full animate-spin"
+                        style={{ animationDuration: '1.5s', animationDirection: 'reverse' }}
+                    />
                 </div>
 
                 {/* Slides */}
@@ -108,4 +111,3 @@ const TableLogin = () => {
 };
 
 export default TableLogin;
-

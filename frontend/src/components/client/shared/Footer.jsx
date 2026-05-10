@@ -22,7 +22,9 @@ const Footer = () => {
                             />
                         </NavLink>
                         <p className="text-white/60 text-sm leading-relaxed mb-6">
-                            Manwah là điểm đến ẩm thực cho những tín đồ yêu thích lẩu Đài Loan. Với đa dạng các loại nước lẩu đặc trưng, kết hợp cùng vô vàn món nhúng tươi ngon, Manwah mang đến trải nghiệm khó quên.
+                            Manwah là điểm đến ẩm thực cho những tín đồ yêu thích lẩu Đài Loan. Với đa dạng các loại
+                            nước lẩu đặc trưng, kết hợp cùng vô vàn món nhúng tươi ngon, Manwah mang đến trải nghiệm khó
+                            quên.
                         </p>
                         <div className="flex gap-3">
                             {[
@@ -54,6 +56,7 @@ const Footer = () => {
                                 { to: '/about', label: 'Về chúng tôi' },
                                 { to: '/booking', label: 'Đặt bàn' },
                                 { to: '/scan', label: 'Quét QR đặt món' },
+                                { to: '/staff', label: 'Dành cho nhân viên' },
                             ].map((link) => (
                                 <li key={link.to}>
                                     <NavLink
@@ -70,31 +73,34 @@ const Footer = () => {
 
                     {/* Contact */}
                     <div>
-                        <h4 className="font-bold text-base uppercase tracking-widest text-[#F89520] mb-5">
-                            Liên hệ
-                        </h4>
+                        <h4 className="font-bold text-base uppercase tracking-widest text-[#F89520] mb-5">Liên hệ</h4>
                         <ul className="space-y-4">
                             <li className="flex items-start gap-3 text-sm text-white/60">
                                 <FaMapMarkerAlt className="text-[#C8392B] mt-0.5 shrink-0" />
-                                <span>Số 60 Phố Giang Văn Minh, Phường Đội Cấn, Quận Ba Đình, Hà Nội</span>
+                                <span>Ngõ 336 Nguyễn Trãi, Phường Thanh Xuân Bắc, Quận Thanh Xuân, Hà Nội</span>
                             </li>
                             <li className="flex items-center gap-3 text-sm text-white/60">
                                 <FaPhoneAlt className="text-[#C8392B] shrink-0" />
-                                <a href="tel:0432223000" className="hover:text-[#F89520] transition-colors">
-                                    043 222 3000
+                                <a href="tel:0329488038" className="hover:text-[#F89520] transition-colors">
+                                    0329 488 038
                                 </a>
                             </li>
                             <li className="flex items-center gap-3 text-sm text-white/60">
                                 <FaEnvelope className="text-[#C8392B] shrink-0" />
-                                <a href="mailto:support.hn@ggg.com.vn" className="hover:text-[#F89520] transition-colors">
-                                    support.hn@ggg.com.vn
+                                <a
+                                    href="mailto:phungduclong268@gmail.com"
+                                    className="hover:text-[#F89520] transition-colors"
+                                >
+                                    phungduclong268@gmail.com
                                 </a>
                             </li>
                         </ul>
 
                         {/* Hours */}
                         <div className="mt-6 p-4 rounded-xl bg-white/5 border border-white/10">
-                            <p className="text-xs font-bold uppercase tracking-widest text-[#F89520] mb-2">Giờ mở cửa</p>
+                            <p className="text-xs font-bold uppercase tracking-widest text-[#F89520] mb-2">
+                                Giờ mở cửa
+                            </p>
                             <p className="text-sm text-white/60">Thứ 2 – Chủ nhật</p>
                             <p className="text-sm text-white font-semibold">10:00 – 22:00</p>
                         </div>
@@ -103,12 +109,8 @@ const Footer = () => {
 
                 {/* Bottom row */}
                 <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
-                    <p className="text-white/40 text-xs">
-                        © 2011 Golden Gate., JSC. All rights reserved.
-                    </p>
-                    <p className="text-white/40 text-xs">
-                        GPĐK: 0102721191 cấp ngày 09/04/2008
-                    </p>
+                    <p className="text-white/40 text-xs">© 2011 Golden Gate., JSC. All rights reserved.</p>
+                    <p className="text-white/40 text-xs">GPĐK: 0102721191 cấp ngày 09/04/2008</p>
                 </div>
             </div>
         </footer>
@@ -116,4 +118,3 @@ const Footer = () => {
 };
 
 export default Footer;
-

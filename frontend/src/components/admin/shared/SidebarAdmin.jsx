@@ -124,14 +124,14 @@ const SidebarAdmin = () => {
             {/* Backdrop for Mobile */}
             {isOpen && (
                 <div
-                    className="fixed inset-0 bg-[#09090b]/80 backdrop-blur-sm z-[45] lg:hidden animate-in fade-in duration-300"
+                    className="fixed inset-0 bg-[#09090b]/60 z-[45] lg:hidden animate-in fade-in duration-150"
                     onClick={closeSidebar}
                 />
             )}
 
             <aside
                 className={cn(
-                    'fixed lg:sticky top-0 h-screen bg-white/40 dark:bg-zinc-900/40 backdrop-blur-xl border-r border-white/30 dark:border-zinc-800/50 flex flex-col z-[50] transition-all duration-500 ease-in-out',
+                    'fixed lg:sticky top-0 h-screen bg-white/95 dark:bg-zinc-950/95 supports-[backdrop-filter]:bg-white/90 supports-[backdrop-filter]:dark:bg-zinc-950/90 supports-[backdrop-filter]:backdrop-blur-md border-r border-slate-200/80 dark:border-zinc-800 flex flex-col z-[50] transition-[width,transform] duration-200 ease-out',
                     isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0',
                     isCollapsed ? 'w-20' : 'w-72',
                 )}
@@ -144,7 +144,7 @@ const SidebarAdmin = () => {
                 <div 
                     ref={scrollRef}
                     onScroll={handleScroll}
-                    className="flex-1 overflow-y-auto py-2 px-4 scrollbar-hide"
+                    className="flex-1 overflow-y-auto py-3 px-3 scrollbar-hide"
                 >
                     {MENU_GROUPS.map((group) => {
                         const visibleItems = group.items.filter((it) => canSee(it.roles));
@@ -170,16 +170,16 @@ const SidebarAdmin = () => {
                                                     if (window.innerWidth < 1024) closeSidebar();
                                                 }}
                                                 className={cn(
-                                                    'group relative flex items-center gap-3 px-4 py-3 rounded-2xl text-[14px] font-bold transition-all duration-300',
+                                                    'group relative flex items-center gap-3 px-4 py-3 rounded-xl text-[14px] font-bold transition-colors duration-150',
                                                     isActive
-                                                        ? 'bg-white dark:bg-zinc-800 text-orange-600 shadow-xl shadow-orange-100/20 dark:shadow-none scale-[1.02]'
-                                                        : 'text-slate-500 dark:text-slate-300 hover:bg-white/50 dark:hover:bg-zinc-800/50 hover:text-slate-900 dark:hover:text-white',
+                                                        ? 'bg-orange-50 dark:bg-orange-950/20 text-orange-600'
+                                                        : 'text-slate-500 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-zinc-800 hover:text-slate-900 dark:hover:text-white',
                                                 )}
                                                 title={isCollapsed ? it.label : ''}
                                             >
                                                 <Icon
                                                     className={cn(
-                                                        'w-[20px] h-[20px] shrink-0 transition-all duration-300',
+                                                        'w-[20px] h-[20px] shrink-0 transition-colors duration-150',
                                                         isActive
                                                             ? 'text-orange-600'
                                                             : 'text-slate-400 dark:text-slate-400 group-hover:text-slate-900 dark:group-hover:text-white',
@@ -201,13 +201,13 @@ const SidebarAdmin = () => {
 
                 {/* Footer User Section */}
                 <div className="p-4 mt-auto">
-                    <div className="p-4 rounded-3xl bg-white/50 dark:bg-zinc-900/50 backdrop-blur-md border border-white/50 dark:border-zinc-800/50 space-y-4">
+                    <div className="p-3 rounded-2xl bg-slate-50 dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 space-y-3">
                         <div className={cn(
                             "flex items-center gap-3",
                             isCollapsed && "justify-center"
                         )}>
                             <div className="relative shrink-0">
-                                <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-orange-500 to-amber-600 flex items-center justify-center font-black text-white shadow-lg">
+                                <div className="w-10 h-10 rounded-xl bg-orange-600 flex items-center justify-center font-black text-white shadow-sm">
                                     {user?.name?.charAt(0)?.toUpperCase() || 'A'}
                                 </div>
                             </div>

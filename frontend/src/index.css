@@ -6,40 +6,40 @@
 @tailwind utilities;
 
 :root {
-    /* Studio Admin - Premium Glassmorphism Theme */
+    /* Admin theme: readable surfaces with restrained effects for smoother interaction */
     --admin-bg: #f8fafc;
-    --admin-card: rgba(255, 255, 255, 0.6);
+    --admin-card: rgba(255, 255, 255, 0.94);
     --admin-card-foreground: #0f172a;
-    --admin-border: rgba(255, 255, 255, 0.6);
-    --admin-input: rgba(255, 255, 255, 0.5);
-    --admin-input-border: rgba(255, 255, 255, 0.6);
+    --admin-border: rgba(226, 232, 240, 0.95);
+    --admin-input: rgba(255, 255, 255, 0.96);
+    --admin-input-border: rgba(203, 213, 225, 0.9);
     --admin-ring: #f97316;
     --admin-primary: #f97316;
     --admin-primary-foreground: #ffffff;
-    --admin-secondary: rgba(255, 255, 255, 0.4);
+    --admin-secondary: rgba(248, 250, 252, 0.95);
     --admin-secondary-foreground: #475569;
-    --admin-muted: rgba(241, 245, 249, 0.5);
+    --admin-muted: rgba(241, 245, 249, 0.95);
     --admin-muted-foreground: #64748b;
-    --admin-accent: rgba(255, 255, 255, 0.8);
+    --admin-accent: rgba(248, 250, 252, 0.95);
     --admin-accent-foreground: #0f172a;
-    --admin-popover: rgba(255, 255, 255, 0.9);
+    --admin-popover: rgba(255, 255, 255, 0.98);
     --admin-popover-foreground: #0f172a;
 }
 
 .dark {
     --admin-bg: #09090b;
-    --admin-card: rgba(24, 24, 27, 0.6);
+    --admin-card: rgba(24, 24, 27, 0.96);
     --admin-card-foreground: #f4f4f5;
-    --admin-border: rgba(39, 39, 42, 0.6);
-    --admin-input: rgba(12, 12, 13, 0.5);
-    --admin-input-border: rgba(39, 39, 42, 0.6);
-    --admin-secondary: rgba(24, 24, 27, 0.4);
+    --admin-border: rgba(39, 39, 42, 0.95);
+    --admin-input: rgba(12, 12, 13, 0.95);
+    --admin-input-border: rgba(63, 63, 70, 0.95);
+    --admin-secondary: rgba(24, 24, 27, 0.95);
     --admin-secondary-foreground: #e2e8f0;
-    --admin-muted: rgba(12, 12, 13, 0.5);
+    --admin-muted: rgba(12, 12, 13, 0.95);
     --admin-muted-foreground: #cbd5e1;
-    --admin-accent: rgba(24, 24, 27, 0.8);
+    --admin-accent: rgba(39, 39, 42, 0.95);
     --admin-accent-foreground: #f4f4f5;
-    --admin-popover: rgba(12, 12, 13, 0.9);
+    --admin-popover: rgba(12, 12, 13, 0.98);
     --admin-popover-foreground: #f4f4f5;
 }
 
@@ -55,21 +55,17 @@ body {
 }
 
 .admin-body {
-    background:
-        radial-gradient(at 0% 0%, hsla(189, 100%, 56%, 0.1) 0%, transparent 50%),
-        radial-gradient(at 100% 0%, hsla(242, 100%, 70%, 0.1) 0%, transparent 50%),
-        radial-gradient(at 100% 100%, hsla(142, 70%, 70%, 0.1) 0%, transparent 50%),
-        radial-gradient(at 0% 100%, hsla(337, 70%, 70%, 0.1) 0%, transparent 50%), var(--admin-bg);
+    background: var(--admin-bg);
     min-height: 100vh;
-    transition: background-color 0.5s ease;
+    transition: background-color 0.2s ease;
 }
 
 @layer utilities {
     .glass {
-        @apply bg-white/50 dark:bg-slate-900/50 backdrop-blur-xl border border-white/40 dark:border-slate-700/30 shadow-[0_8px_32px_0_rgba(0,0,0,0.04)] dark:shadow-none;
+        @apply bg-white/95 dark:bg-slate-900/95 border border-slate-200 dark:border-slate-700/50 shadow-sm;
     }
     .glass-card {
-        @apply bg-white/60 dark:bg-slate-900/60 backdrop-blur-lg border border-white/50 dark:border-slate-800 shadow-sm hover:shadow-md transition-shadow;
+        @apply bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm transition-colors;
     }
 
     /* Manwah Restaurant Theme */
@@ -183,31 +179,6 @@ html {
     --color-primary: #f89520;
     --color-manwah-red: #c8392b;
     --color-manwah-amber: #f89520;
-    --color-manwah-cream: #fffaf6;
-    --color-manwah-brown: #3d2314;
-    --font-addington: 'SVN-Addington', serif;
-    --font-playfair: 'Playfair Display', serif;
-}
-
-@keyframes slideIn {
-    from {
-        opacity: 0;
-        transform: translateX(100%);
-    }
-    to {
-        opacity: 1;
-        transform: translateX(0);
-    }
-}
-
-.animate-slideIn {
-    animation: slideIn 0.3s ease-out;
-}
-
-@theme inline {
-    --radius-sm: calc(var(--radius) - 4px);
-    --radius-md: calc(var(--radius) - 2px);
-    --radius-lg: var(--radius);
     --radius-xl: calc(var(--radius) + 4px);
     --radius-2xl: calc(var(--radius) + 8px);
     --radius-3xl: calc(var(--radius) + 12px);
@@ -328,27 +299,25 @@ html {
    ========================================================================== */
 
 .admin-glass {
-    background: rgba(255, 255, 255, 0.4);
-    backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.5);
-    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
+    background: var(--admin-card);
+    border: 1px solid var(--admin-border);
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
 }
 
 .admin-card {
     background: var(--admin-card);
-    backdrop-filter: blur(12px);
     border: 1px solid var(--admin-border);
-    border-radius: 2rem;
-    box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.05);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: 1rem;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+    transition:
+        border-color 0.15s ease,
+        box-shadow 0.15s ease,
+        background-color 0.15s ease;
 }
 
 .admin-card:hover {
-    border-color: rgba(249, 115, 22, 0.3);
-    transform: translateY(-2px);
-    box-shadow:
-        0 10px 15px -3px rgb(0 0 0 / 0.1),
-        0 4px 6px -4px rgb(0 0 0 / 0.1);
+    border-color: rgba(249, 115, 22, 0.25);
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06);
 }
 
 .admin-table-container {
@@ -437,14 +406,16 @@ html {
 .admin-input {
     width: 100%;
     background: var(--admin-input);
-    backdrop-filter: blur(8px);
     border: 1px solid var(--admin-input-border);
     color: var(--admin-card-foreground);
     padding: 0.75rem 1rem 0.75rem 3rem;
-    border-radius: 1.5rem;
+    border-radius: 0.875rem;
     font-size: 0.875rem;
     outline: none;
-    transition: all 0.3s;
+    transition:
+        border-color 0.15s ease,
+        background-color 0.15s ease,
+        box-shadow 0.15s ease;
 }
 
 .admin-input:focus {
@@ -454,24 +425,25 @@ html {
 }
 
 .admin-btn-primary {
-    background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+    background: #f97316;
     color: white;
     padding: 0.75rem 1.5rem;
-    border-radius: 1.25rem;
+    border-radius: 0.875rem;
     font-weight: 600;
     font-size: 0.875rem;
-    transition: all 0.3s;
+    transition:
+        background-color 0.15s ease,
+        box-shadow 0.15s ease;
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
     border: none;
     cursor: pointer;
-    box-shadow: 0 10px 20px -5px rgba(99, 102, 241, 0.4);
+    box-shadow: 0 6px 14px -8px rgba(249, 115, 22, 0.75);
 }
 
 .admin-btn-primary:hover {
-    filter: brightness(1.1);
-    transform: translateY(-1px);
+    background: #ea580c;
     box-shadow: 0 4px 12px rgba(249, 115, 22, 0.2);
 }
 
@@ -482,7 +454,10 @@ html {
     border-radius: 0.75rem;
     font-weight: 600;
     font-size: 0.875rem;
-    transition: all 0.2s;
+    transition:
+        background-color 0.15s ease,
+        border-color 0.15s ease,
+        color 0.15s ease;
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
@@ -541,3 +516,70 @@ html {
     font-size: 0.875rem;
     margin-top: 0.25rem;
 }
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        scroll-behavior: auto !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* Keep the admin typography, but flatten older decorative screens. */
+.admin-body .animate-in {
+    animation-duration: 150ms !important;
+}
+
+.admin-body [class*='duration-700'],
+.admin-body [class*='duration-500'],
+.admin-body [class*='duration-300'] {
+    transition-duration: 150ms !important;
+}
+
+.admin-body [class*='backdrop-blur'] {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+}
+
+.admin-body [class*='shadow-2xl'],
+.admin-body [class*='shadow-xl'] {
+    box-shadow: 0 8px 24px -18px rgba(15, 23, 42, 0.35) !important;
+}
+
+.admin-body [class*='shadow-lg'] {
+    box-shadow: 0 4px 14px -12px rgba(15, 23, 42, 0.35) !important;
+}
+
+.admin-body [class*='rounded-[3'],
+.admin-body [class*='rounded-[2.5'] {
+    border-radius: 1rem !important;
+}
+
+.admin-body [class*='blur-3xl'],
+.admin-body [class*='blur-['] {
+    display: none !important;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes scan-line {
+    0% { top: 60px; opacity: 0; }
+    10% { opacity: 1; }
+    90% { opacity: 1; }
+    100% { top: calc(100% - 66px); opacity: 0; }
+}
+
+.animate-fadeIn {
+    animation: fadeIn 0.5s ease-out forwards;
+}
+
+.animate-scanLine {
+    animation: scan-line 2.5s linear infinite;
+}
+

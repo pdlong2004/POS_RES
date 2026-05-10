@@ -2,18 +2,23 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { getStatusTablesApi } from '@/service/statusTable.service';
 import { updateTableStatusApi } from '@/service/table.service';
-import { NavLink, useNavigate } from 'react-router-dom';
+import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { FaCartShopping } from 'react-icons/fa6';
 import TableMap from './TableMap';
 import { useCart } from '../../../context/CartContext';
-import { FaFileInvoice } from 'react-icons/fa';
+import { FaFileInvoice, FaUserShield } from 'react-icons/fa';
+import { useAuth } from '../../../context/AuthContext';
 
 const Header = () => {
     const [menuActive, setMenuActive] = useState(false);
     const [showMap, setShowMap] = useState(false);
     const [scrolled, setScrolled] = useState(false);
     const navigate = useNavigate();
+    const location = useLocation();
     const { totalItems } = useCart();
+    const { isAuthenticated } = useAuth();
+
+    const isStaffPortal = location.pathname === '/staff';
 
     const tableToken = sessionStorage.getItem('tableToken');
     const tableInfo = JSON.parse(sessionStorage.getItem('tableInfo'));
@@ -50,7 +55,7 @@ const Header = () => {
     };
 
     const menuItems = [
-        { path: '/', label: 'Trang chủ' },
+        { path: '/home', label: 'Trang chủ' },
         { path: '/menu', label: 'Thực Đơn' },
         { path: '/about', label: 'Về Chúng Tôi' },
         { path: '/booking', label: 'Đặt Bàn' },
@@ -67,7 +72,7 @@ const Header = () => {
             >
                 <div className="flex justify-between items-center px-6 h-[72px] max-w-7xl mx-auto">
                     {/* Logo */}
-                    <NavLink to="/" className="group flex items-center gap-2 shrink-0">
+                    <NavLink to="/home" className="group flex items-center gap-2 shrink-0">
                         <img
                             src="https://manwah.com.vn/images/logo/manwah.svg"
                             className="h-9 w-auto group-hover:scale-105 transition-transform duration-300"
@@ -84,9 +89,7 @@ const Header = () => {
                                 end
                                 className={({ isActive }) =>
                                     `relative px-4 py-2 text-sm font-semibold tracking-wide transition-colors duration-200 rounded-lg group ${
-                                        isActive
-                                            ? 'text-[#C8392B]'
-                                            : 'text-[#4a3728] hover:text-[#C8392B]'
+                                        isActive ? 'text-[#C8392B]' : 'text-[#4a3728] hover:text-[#C8392B]'
                                     }`
                                 }
                             >
@@ -95,7 +98,9 @@ const Header = () => {
                                         {item.label}
                                         <span
                                             className={`absolute bottom-0 left-4 right-4 h-0.5 bg-[#C8392B] rounded-full transition-all duration-300 ${
-                                                isActive ? 'opacity-100 scale-x-100' : 'opacity-0 scale-x-0 group-hover:opacity-100 group-hover:scale-x-100'
+                                                isActive
+                                                    ? 'opacity-100 scale-x-100'
+                                                    : 'opacity-0 scale-x-0 group-hover:opacity-100 group-hover:scale-x-100'
                                             }`}
                                         />
                                     </>
@@ -111,9 +116,7 @@ const Header = () => {
                             <div className="hidden lg:flex items-center gap-3 border-r border-[#e8d5c4] pr-4 mr-1">
                                 <div className="flex items-center gap-1.5 px-3 py-1.5 bg-[#fdf0e8] rounded-full border border-[#f5d5c0]">
                                     <span className="text-[#C8392B] text-sm">🪑</span>
-                                    <span className="text-sm font-bold text-[#C8392B]">
-                                        {tableInfo?.name}
-                                    </span>
+                                    <span className="text-sm font-bold text-[#C8392B]">{tableInfo?.name}</span>
                                 </div>
                                 <button
                                     onClick={handleTableLogout}
@@ -153,18 +156,27 @@ const Header = () => {
                         {/* Desktop login/map buttons */}
                         {!isTableLogin && (
                             <div className="hidden lg:flex items-center gap-3">
-                                <button
-                                    onClick={() => setShowMap(true)}
-                                    className="px-4 py-2 border border-[#e8d5c4] text-[#4a3728] font-semibold rounded-full hover:bg-[#fdf0e8] hover:border-[#C8392B] hover:text-[#C8392B] transition-all text-sm"
-                                >
-                                    Sơ đồ bàn
-                                </button>
-                                <NavLink
-                                    to="/scan"
-                                    className="mw-btn-primary !py-2 !px-5"
-                                >
-                                    Quét QR Đăng Nhập
-                                </NavLink>
+                                {isStaffPortal ? (
+                                    <>
+                                        <button
+                                            onClick={() => setShowMap(true)}
+                                            className="px-4 py-2 border border-[#e8d5c4] text-[#4a3728] font-semibold rounded-full hover:bg-[#fdf0e8] hover:border-[#C8392B] hover:text-[#C8392B] transition-all text-sm"
+                                        >
+                                            Sơ đồ bàn
+                                        </button>
+                                        <NavLink
+                                            to={isAuthenticated ? '/admin/dashboard' : '/admin'}
+                                            className="flex items-center gap-2 px-4 py-2 bg-[#4a3728] text-white font-semibold rounded-full hover:bg-[#C8392B] transition-all text-sm shadow-sm"
+                                        >
+                                            <FaUserShield className="text-base" />
+                                            <span>{isAuthenticated ? 'Quản trị' : 'Đăng nhập Admin'}</span>
+                                        </NavLink>
+                                    </>
+                                ) : (
+                                    <NavLink to="/scan" className="mw-btn-primary !py-2 !px-5">
+                                        Quét QR Đăng Nhập
+                                    </NavLink>
+                                )}
                             </div>
                         )}
 
@@ -220,7 +232,10 @@ const Header = () => {
                                     <span className="text-sm font-bold text-[#C8392B]">{tableInfo?.name}</span>
                                 </div>
                                 <button
-                                    onClick={() => { handleTableLogout(); setMenuActive(false); }}
+                                    onClick={() => {
+                                        handleTableLogout();
+                                        setMenuActive(false);
+                                    }}
                                     className="text-xs font-bold text-red-500 hover:text-red-700 transition-colors uppercase tracking-wider"
                                 >
                                     Đăng xuất
@@ -229,19 +244,35 @@ const Header = () => {
                         </div>
                     ) : (
                         <div className="px-4 pb-4 space-y-2 border-t border-[#f5e8d8] pt-3">
-                            <NavLink
-                                to="/scan"
-                                onClick={() => setMenuActive(false)}
-                                className="mw-btn-primary w-full justify-center"
-                            >
-                                Quét QR Đăng Nhập
-                            </NavLink>
-                            <button
-                                onClick={() => { setShowMap(true); setMenuActive(false); }}
-                                className="mw-btn-outline w-full"
-                            >
-                                Sơ đồ bàn
-                            </button>
+                            {isStaffPortal ? (
+                                <>
+                                    <NavLink
+                                        to={isAuthenticated ? '/admin/dashboard' : '/admin'}
+                                        onClick={() => setMenuActive(false)}
+                                        className="flex items-center justify-center gap-2 w-full px-4 py-3 bg-[#4a3728] text-white rounded-xl font-semibold text-sm hover:bg-[#C8392B] transition-colors"
+                                    >
+                                        <FaUserShield />
+                                        {isAuthenticated ? 'Quản trị viên' : 'Đăng nhập Admin'}
+                                    </NavLink>
+                                    <button
+                                        onClick={() => {
+                                            setShowMap(true);
+                                            setMenuActive(false);
+                                        }}
+                                        className="mw-btn-outline w-full"
+                                    >
+                                        Sơ đồ bàn
+                                    </button>
+                                </>
+                            ) : (
+                                <NavLink
+                                    to="/scan"
+                                    onClick={() => setMenuActive(false)}
+                                    className="mw-btn-primary w-full justify-center"
+                                >
+                                    Quét QR Đăng Nhập
+                                </NavLink>
+                            )}
                         </div>
                     )}
                 </div>
@@ -253,4 +284,3 @@ const Header = () => {
 };
 
 export default Header;
-

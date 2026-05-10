@@ -223,11 +223,8 @@ const AdminInventory = () => {
             {/* CONTENT */}
             <div className="animate-in fade-in slide-in-from-bottom-4 duration-700 delay-300">
                 {loading ? (
-                    <div className="py-32 flex flex-col items-center justify-center gap-4">
-                        <RefreshCw className="h-8 w-8 text-orange-600 dark:text-orange-500 animate-spin" />
-                        <p className="text-slate-400 dark:text-slate-500 font-bold uppercase tracking-widest text-xs animate-pulse">
-                            Đang tải ma trận kho...
-                        </p>
+                    <div className="admin-card bg-white dark:bg-zinc-950">
+                        <AdminLoading message="Đang tải tồn kho..." />
                     </div>
                 ) : filteredProducts.length === 0 ? (
                     <div className="admin-card py-32 flex flex-col items-center justify-center bg-white/30 dark:bg-zinc-900/30 border-white dark:border-zinc-800 rounded-[3rem]">
@@ -345,9 +342,9 @@ const AdminInventory = () => {
 
             {/* EDIT MODAL */}
             {isModalOpen && editingProduct && (
-                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm animate-in fade-in duration-300">
-                    <div className="bg-white/95 dark:bg-zinc-900/95 backdrop-blur-xl w-full max-w-xl rounded-[2.5rem] shadow-2xl overflow-hidden border border-white dark:border-zinc-800 animate-in zoom-in-95 duration-500">
-                        <div className="p-10 space-y-10 bg-white/50 dark:bg-zinc-900/50">
+                <div className="fixed inset-0 z-[100] flex justify-end bg-slate-900/40 animate-in fade-in duration-150">
+                    <div className="h-full w-full max-w-lg bg-white dark:bg-zinc-900 shadow-2xl overflow-y-auto border-l border-slate-200 dark:border-zinc-800 animate-in slide-in-from-right duration-200">
+                        <div className="p-6 space-y-8 bg-white dark:bg-zinc-900">
                             <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-4">
                                     <div className="w-14 h-14 rounded-2xl bg-orange-50 dark:bg-orange-950/20 flex items-center justify-center text-orange-600 dark:text-orange-400">
@@ -355,7 +352,7 @@ const AdminInventory = () => {
                                     </div>
                                     <div>
                                         <h2 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">Cập nhật tồn kho</h2>
-                                        <p className="text-slate-400 dark:text-slate-500 text-[10px] font-black uppercase tracking-[0.2em] mt-1">Inventory Management</p>
+                                        <p className="text-slate-400 dark:text-slate-500 text-[10px] font-black uppercase tracking-[0.2em] mt-1">Thông tin tồn kho</p>
                                     </div>
                                 </div>
                                 <button onClick={closeModal} className="p-2 hover:bg-slate-100 dark:hover:bg-zinc-800 rounded-xl transition-all">

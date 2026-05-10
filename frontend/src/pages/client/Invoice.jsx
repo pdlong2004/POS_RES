@@ -123,10 +123,7 @@ const Invoice = () => {
                         <div className="text-5xl mb-4">🧾</div>
                         <h2 className="text-xl font-bold text-[#3d2314] mb-3 mw-subheading">Chưa đăng nhập bàn</h2>
                         <p className="text-[#8c6a57] text-sm mb-6">Quét mã QR tại bàn để xem hóa đơn của bạn</p>
-                        <button
-                            onClick={() => navigate('/scan')}
-                            className="mw-btn-primary"
-                        >
+                        <button onClick={() => navigate('/scan')} className="mw-btn-primary">
                             Quét QR đăng nhập bàn
                         </button>
                     </div>
@@ -147,9 +144,7 @@ const Invoice = () => {
                     <h1 className="text-3xl md:text-4xl font-bold mw-subheading">
                         <em>Chi Tiết Thanh Toán</em>
                     </h1>
-                    {tableInfo?.name && (
-                        <p className="text-white/50 mt-1 text-sm">🪑 {tableInfo.name}</p>
-                    )}
+                    {tableInfo?.name && <p className="text-white/50 mt-1 text-sm">🪑 {tableInfo.name}</p>}
                 </div>
             </div>
 
@@ -160,12 +155,14 @@ const Invoice = () => {
                     <div className="px-6 py-4 border-b border-[#f5e8d8] bg-[#fffaf6] flex items-center justify-between">
                         <h2 className="font-bold text-[#3d2314]">Chi tiết đơn hàng</h2>
                         {invoice && (
-                            <span className={`mw-badge ${invoice.paymentStatus === 'paid' ? '!bg-green-50 !text-green-600 !border-green-200' : ''}`}>
+                            <span
+                                className={`mw-badge ${invoice.paymentStatus === 'paid' ? '!bg-green-50 !text-green-600 !border-green-200' : ''}`}
+                            >
                                 {invoice.paymentStatus === 'paid'
                                     ? '✓ Đã thanh toán'
                                     : invoice.paymentStatus === 'cancelled'
-                                    ? 'Đã hủy'
-                                    : '⏳ Chờ thanh toán'}
+                                      ? 'Đã hủy'
+                                      : '⏳ Chờ thanh toán'}
                             </span>
                         )}
                     </div>
@@ -209,7 +206,10 @@ const Invoice = () => {
                                                 const unitPrice = Number(item.price ?? product?.price ?? 0);
                                                 const qty = Number(item.quantity ?? 0);
                                                 return (
-                                                    <tr key={item._id || index} className="hover:bg-[#fffaf6] transition-colors">
+                                                    <tr
+                                                        key={item._id || index}
+                                                        className="hover:bg-[#fffaf6] transition-colors"
+                                                    >
                                                         <td className="px-4 py-3 font-medium text-[#3d2314]">{name}</td>
                                                         <td className="px-4 py-3 text-center text-[#8c6a57]">{qty}</td>
                                                         <td className="px-4 py-3 text-right text-[#8c6a57]">
@@ -241,33 +241,43 @@ const Invoice = () => {
                                 <div className="space-y-2 text-sm">
                                     <div className="flex justify-between text-[#8c6a57]">
                                         <span>Tạm tính:</span>
-                                        <span className="text-[#3d2314] font-semibold">{formatPrice(invoice.itemsSubtotal)}đ</span>
+                                        <span className="text-[#3d2314] font-semibold">
+                                            {formatPrice(invoice.itemsSubtotal)}đ
+                                        </span>
                                     </div>
 
                                     {invoice.taxAmount > 0 && (
                                         <div className="flex justify-between text-[#8c6a57]">
                                             <span>Thuế:</span>
-                                            <span className="text-[#3d2314] font-semibold">{formatPrice(invoice.taxAmount)}đ</span>
+                                            <span className="text-[#3d2314] font-semibold">
+                                                {formatPrice(invoice.taxAmount)}đ
+                                            </span>
                                         </div>
                                     )}
 
                                     {invoice.serviceCharge > 0 && (
                                         <div className="flex justify-between text-[#8c6a57]">
                                             <span>Phí phục vụ:</span>
-                                            <span className="text-[#3d2314] font-semibold">{formatPrice(invoice.serviceCharge)}đ</span>
+                                            <span className="text-[#3d2314] font-semibold">
+                                                {formatPrice(invoice.serviceCharge)}đ
+                                            </span>
                                         </div>
                                     )}
 
                                     {invoice.discountAmount > 0 && (
                                         <div className="flex justify-between text-green-600">
                                             <span>Giảm giá:</span>
-                                            <span className="font-semibold">−{formatPrice(invoice.discountAmount)}đ</span>
+                                            <span className="font-semibold">
+                                                −{formatPrice(invoice.discountAmount)}đ
+                                            </span>
                                         </div>
                                     )}
                                 </div>
 
                                 <div className="border-t border-[#f5e8d8] pt-3 flex justify-between items-end">
-                                    <span className="text-xs font-bold text-[#b89c8a] uppercase tracking-widest">Thành tiền</span>
+                                    <span className="text-xs font-bold text-[#b89c8a] uppercase tracking-widest">
+                                        Thành tiền
+                                    </span>
                                     <span className="text-2xl font-bold text-[#C8392B] mw-subheading">
                                         {formatPrice(invoice.totalPrice)}đ
                                     </span>
@@ -276,10 +286,7 @@ const Invoice = () => {
                         )}
 
                         {/* Promo code */}
-                        <input
-                            placeholder="Nhập mã khuyến mãi..."
-                            className="mw-input text-sm"
-                        />
+                        <input placeholder="Nhập mã khuyến mãi..." className="mw-input text-sm" />
 
                         {/* Payment method */}
                         <div className="space-y-2">
@@ -350,4 +357,3 @@ const Invoice = () => {
 };
 
 export default Invoice;
-

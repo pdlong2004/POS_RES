@@ -237,10 +237,7 @@ const AdminSuppliers = () => {
             <div className="animate-in fade-in slide-in-from-bottom-4 duration-700 delay-300">
                 {loading ? (
                     <div className="admin-card py-32 flex flex-col items-center justify-center border-white/40 dark:border-zinc-800/50 rounded-[2.5rem] bg-white/30 dark:bg-zinc-900/30">
-                        <RefreshCw className="h-10 w-10 text-orange-600 animate-spin" />
-                        <p className="text-slate-400 font-bold uppercase tracking-widest text-xs mt-6 animate-pulse">
-                            Đang ánh xạ mạng lưới cung ứng...
-                        </p>
+                        <AdminLoading message="Đang tải nhà cung cấp..." className="min-h-0 py-0" />
                     </div>
                 ) : filteredSuppliers.length === 0 ? (
                     <div className="admin-card py-32 flex flex-col items-center justify-center border-white/40 dark:border-zinc-800/50 rounded-[2.5rem] bg-white/30 dark:bg-zinc-900/30">
@@ -338,9 +335,9 @@ const AdminSuppliers = () => {
 
             {/* FORM MODAL */}
             {isModalOpen && (
-                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm animate-in fade-in duration-300">
-                    <div className="bg-white/95 dark:bg-zinc-900/95 backdrop-blur-xl w-full max-w-2xl rounded-[3rem] shadow-2xl overflow-hidden border border-white dark:border-zinc-800 animate-in zoom-in-95 duration-500 flex flex-col max-h-[90vh]">
-                        <div className="p-10 border-b border-slate-100 dark:border-zinc-800 flex items-center justify-between bg-white/50 dark:bg-zinc-800/50">
+                <div className="fixed inset-0 z-[100] flex justify-end bg-slate-900/40 animate-in fade-in duration-150">
+                    <div className="h-full w-full max-w-xl bg-white dark:bg-zinc-900 shadow-2xl overflow-hidden border-l border-slate-200 dark:border-zinc-800 animate-in slide-in-from-right duration-200 flex flex-col">
+                        <div className="p-6 border-b border-slate-100 dark:border-zinc-800 flex items-center justify-between bg-white dark:bg-zinc-900">
                             <div className="flex items-center gap-5">
                                 <div className="w-14 h-14 rounded-2xl bg-orange-600 flex items-center justify-center text-white shadow-lg shadow-orange-100">
                                     <Building2 size={28} />
@@ -350,7 +347,7 @@ const AdminSuppliers = () => {
                                         {editingSupplier ? 'Cập nhật đối tác' : 'Thêm nhà cung cấp'}
                                     </h2>
                                     <p className="text-orange-600 text-[10px] font-black uppercase tracking-[0.2em] mt-1">
-                                        Supplier Management System
+                                        Thông tin nhà cung cấp
                                     </p>
                                 </div>
                             </div>
@@ -359,7 +356,7 @@ const AdminSuppliers = () => {
                             </button>
                         </div>
 
-                        <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-10 space-y-8 scrollbar-hide bg-white/50 dark:bg-zinc-900/50">
+                        <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-6 space-y-8 bg-white dark:bg-zinc-900">
                             <div className="space-y-4">
                                 <label className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest px-1">
                                     Tên doanh nghiệp / Nhà cung cấp <span className="text-rose-500">*</span>
@@ -466,7 +463,7 @@ const AdminSuppliers = () => {
                             </div>
                         </form>
 
-                        <div className="p-10 border-t border-slate-100 dark:border-zinc-800 bg-white/50 dark:bg-zinc-800/50 flex gap-6">
+                        <div className="p-6 border-t border-slate-100 dark:border-zinc-800 bg-slate-50 dark:bg-zinc-800/50 flex gap-4">
                             <button
                                 type="button"
                                 onClick={closeModal}

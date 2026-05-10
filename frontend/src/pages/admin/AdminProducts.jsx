@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useCallback, useDeferredValue, useRef } from 'react';
 import AdminLayout from '@/components/admin/shared/AdminLayout';
 import AdminLoading from '@/components/admin/shared/AdminLoading';
 import {
@@ -11,8 +11,6 @@ import {
     Check,
     Image as ImageIcon,
     ArrowUpDown,
-    ChevronLeft,
-    ChevronRight,
     Filter,
     MoreHorizontal,
     Zap,
@@ -82,7 +80,7 @@ const ProductFilter = React.memo(({
     );
 });
 
-const ProductRow = React.memo(({ p, selectedIds, onSelect, onEdit, onDelete, formatPrice }) => {
+const ProductRow = React.memo(({ p, isSelected, onSelect, onEdit, onDelete, formatPrice }) => {
     const status = p.stock_quantity > 0 ? 'Active' : 'Out of stock';
     return (
         <tr className="group hover:bg-slate-50/50 dark:hover:bg-zinc-800/30 transition-colors">
@@ -90,7 +88,7 @@ const ProductRow = React.memo(({ p, selectedIds, onSelect, onEdit, onDelete, for
                 <label className="flex items-center cursor-pointer justify-center">
                     <input
                         type="checkbox"
-                        checked={selectedIds.includes(p._id)}
+                        checked={isSelected}
                         onChange={() => onSelect(p._id)}
                         className="sr-only peer"
                     />
@@ -109,7 +107,9 @@ const ProductRow = React.memo(({ p, selectedIds, onSelect, onEdit, onDelete, for
                             <img
                                 src={p.image}
                                 alt={p.name}
-                                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                                loading="lazy"
+                                decoding="async"
+                                className="w-full h-full object-cover"
                             />
                         ) : (
                             <div className="w-full h-full flex items-center justify-center text-slate-200 dark:text-zinc-800">
@@ -172,6 +172,7 @@ const ProductRow = React.memo(({ p, selectedIds, onSelect, onEdit, onDelete, for
 
 const ProductTable = React.memo(({ products, selectedIds, onSelect, onSelectAll, sortConfig, onSort, onEdit, onDelete }) => {
     const formatPrice = (price) => new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
+    const selectedSet = useMemo(() => new Set(selectedIds), [selectedIds]);
 
     const SortIcon = ({ column }) => {
         if (sortConfig.key !== column)
@@ -239,7 +240,7 @@ const ProductTable = React.memo(({ products, selectedIds, onSelect, onSelectAll,
                             <ProductRow
                                 key={p._id}
                                 p={p}
-                                selectedIds={selectedIds}
+                                isSelected={selectedSet.has(p._id)}
                                 onSelect={onSelect}
                                 onEdit={onEdit}
                                 onDelete={onDelete}
@@ -267,6 +268,7 @@ const ProductTable = React.memo(({ products, selectedIds, onSelect, onSelectAll,
 
 const ProductForm = ({ isOpen, onClose, onSubmit, initialData, categories, isSubmitting }) => {
     const [form, setForm] = useState({ name: '', price: '', categoryId: '', stock_quantity: 0, image: '' });
+    const fileInputRef = useRef(null);
 
     useEffect(() => {
         if (initialData) {
@@ -290,19 +292,40 @@ const ProductForm = ({ isOpen, onClose, onSubmit, initialData, categories, isSub
         onSubmit(form);
     };
 
+    const handleImageFile = (event) => {
+        const file = event.target.files?.[0];
+        if (!file) return;
+
+        if (!file.type.startsWith('image/')) {
+            window.alert('Vui lòng chọn đúng định dạng ảnh.');
+            return;
+        }
+
+        if (file.size > 2 * 1024 * 1024) {
+            window.alert('Ảnh nên nhỏ hơn 2MB để trang tải nhanh hơn.');
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = () => {
+            setForm((prev) => ({ ...prev, image: reader.result || '' }));
+        };
+        reader.readAsDataURL(file);
+    };
+
     return (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm animate-in fade-in duration-300">
-            <div className="bg-white/95 dark:bg-zinc-900/95 backdrop-blur-xl w-full max-w-2xl rounded-[3rem] shadow-2xl overflow-hidden border border-white dark:border-zinc-800 animate-in zoom-in-95 duration-500 flex flex-col max-h-[90vh]">
-                <div className="p-10 border-b border-slate-100 dark:border-zinc-800 flex items-center justify-between bg-white/50 dark:bg-zinc-800/50">
+        <div className="fixed inset-0 z-[100] flex justify-end bg-slate-900/40 animate-in fade-in duration-150">
+            <div className="h-full w-full max-w-xl bg-white dark:bg-zinc-900 shadow-2xl overflow-hidden border-l border-slate-200 dark:border-zinc-800 animate-in slide-in-from-right duration-200 flex flex-col">
+                <div className="p-6 border-b border-slate-100 dark:border-zinc-800 flex items-center justify-between bg-white dark:bg-zinc-900">
                     <div className="flex items-center gap-5">
                         <div className="w-14 h-14 rounded-2xl bg-orange-600 dark:bg-orange-500 flex items-center justify-center text-white shadow-lg shadow-orange-100 dark:shadow-none">
                             {initialData ? <Edit2 size={24} /> : <Plus size={24} />}
                         </div>
                         <div>
                             <h2 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">
-                                {initialData ? 'Cấu hình thực đơn' : 'Thiết lập món mới'}
+                                {initialData ? 'Cập nhật món ăn' : 'Thêm món ăn'}
                             </h2>
-                            <p className="text-orange-600 dark:text-orange-500 text-[10px] font-black uppercase tracking-[0.2em] mt-1">Menu configuration system</p>
+                            <p className="text-orange-600 dark:text-orange-500 text-[10px] font-black uppercase tracking-[0.2em] mt-1">Thông tin món ăn</p>
                         </div>
                     </div>
                     <button onClick={onClose} className="p-2 hover:bg-slate-100 dark:hover:bg-zinc-800 rounded-xl transition-all">
@@ -310,22 +333,36 @@ const ProductForm = ({ isOpen, onClose, onSubmit, initialData, categories, isSub
                     </button>
                 </div>
 
-                <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-10 space-y-10 scrollbar-hide">
+                <form id="product-form" onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-6 space-y-8">
                     {/* Image Area */}
                     <div className="space-y-4">
-                        <label className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest px-1">Visual Identity</label>
-                        <div className="flex gap-8 items-start">
+                        <label className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest px-1">Hình ảnh</label>
+                        <div className="flex flex-col sm:flex-row gap-5 items-start">
                             <div className="w-40 h-40 rounded-[2rem] border-2 border-dashed border-slate-200 dark:border-zinc-800 flex items-center justify-center overflow-hidden bg-slate-50 dark:bg-zinc-950 transition-colors shrink-0 shadow-inner group hover:border-orange-400 dark:hover:border-orange-900 transition-all duration-500">
                                 {form.image ? (
-                                    <img src={form.image} alt="Preview" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                                    <img src={form.image} alt="Preview" loading="lazy" decoding="async" className="w-full h-full object-cover" />
                                 ) : (
                                     <ImageIcon className="w-12 h-12 text-slate-200 dark:text-zinc-800" strokeWidth={1} />
                                 )}
                             </div>
                             <div className="flex-1 space-y-4">
                                 <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium leading-relaxed italic">
-                                    Vui lòng cung cấp URL hình ảnh chất lượng cao để đảm bảo hiển thị tối ưu trên thiết bị của khách hàng.
+                                    Chọn ảnh từ máy hoặc dán URL hình ảnh để hiển thị món ăn trong thực đơn.
                                 </p>
+                                <input
+                                    ref={fileInputRef}
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={handleImageFile}
+                                    className="hidden"
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() => fileInputRef.current?.click()}
+                                    className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 text-xs font-black uppercase tracking-widest text-slate-600 transition-colors hover:bg-slate-50 hover:text-orange-600 dark:border-zinc-800 dark:bg-zinc-900 dark:text-slate-300 dark:hover:bg-zinc-800"
+                                >
+                                    <ImageIcon size={16} /> Chọn ảnh từ máy
+                                </button>
                                 <input
                                     value={form.image}
                                     onChange={(e) => setForm({ ...form, image: e.target.value })}
@@ -337,7 +374,7 @@ const ProductForm = ({ isOpen, onClose, onSubmit, initialData, categories, isSub
                     </div>
 
                     <div className="space-y-4">
-                        <label className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest px-1">Tên thực thể</label>
+                        <label className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest px-1">Tên món ăn</label>
                         <input
                             required
                             value={form.name}
@@ -376,7 +413,7 @@ const ProductForm = ({ isOpen, onClose, onSubmit, initialData, categories, isSub
                     </div>
 
                     <div className="space-y-4">
-                        <label className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest px-1">Phân loại danh mục</label>
+                        <label className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest px-1">Danh mục</label>
                         <div className="relative">
                             <select
                                 required
@@ -394,7 +431,7 @@ const ProductForm = ({ isOpen, onClose, onSubmit, initialData, categories, isSub
                     </div>
                 </form>
 
-                <div className="p-10 border-t border-slate-100 dark:border-zinc-800 bg-white/50 dark:bg-zinc-800/50 flex gap-6">
+                <div className="p-6 border-t border-slate-100 dark:border-zinc-800 bg-slate-50 dark:bg-zinc-800/50 flex gap-4">
                     <button
                         type="button"
                         onClick={onClose}
@@ -404,7 +441,8 @@ const ProductForm = ({ isOpen, onClose, onSubmit, initialData, categories, isSub
                         Hủy bỏ
                     </button>
                     <button
-                        onClick={handleSubmit}
+                        type="submit"
+                        form="product-form"
                         disabled={isSubmitting}
                         className="flex-1 py-5 rounded-2xl bg-orange-600 text-white text-xs font-black uppercase tracking-widest hover:bg-orange-700 shadow-xl shadow-orange-100 dark:shadow-none transition-all flex items-center justify-center gap-3"
                     >
@@ -446,8 +484,9 @@ const AdminProducts = () => {
     const [editingProduct, setEditingProduct] = useState(null);
     const [isDeleteOpen, setIsDeleteOpen] = useState(false);
     const [deletingId, setDeletingId] = useState(null);
+    const deferredSearch = useDeferredValue(search);
 
-    const fetchData = async () => {
+    const fetchData = useCallback(async () => {
         setLoading(true);
         try {
             const [prodRes, catRes] = await Promise.all([getProductsApi(), getCategoryApi()]);
@@ -459,16 +498,16 @@ const AdminProducts = () => {
         } finally {
             setLoading(false);
         }
-    };
+    }, [toast]);
 
     useEffect(() => {
         fetchData();
-    }, []);
+    }, [fetchData]);
 
     const filteredProducts = useMemo(() => {
         let result = [...products];
-        if (search) {
-            const query = search.toLowerCase();
+        if (deferredSearch) {
+            const query = deferredSearch.toLowerCase();
             result = result.filter(
                 (p) =>
                     p.name?.toLowerCase().includes(query) ||
@@ -500,25 +539,25 @@ const AdminProducts = () => {
         });
 
         return result;
-    }, [products, search, filterCategory, filterStatus, sortConfig]);
+    }, [products, deferredSearch, filterCategory, filterStatus, sortConfig]);
 
-    const handleSort = (key) => {
+    const handleSort = useCallback((key) => {
         let direction = 'asc';
         if (sortConfig.key === key && sortConfig.direction === 'asc') direction = 'desc';
         setSortConfig({ key, direction });
-    };
+    }, [sortConfig]);
 
-    const handleSelect = (id) => {
+    const handleSelect = useCallback((id) => {
         setSelectedIds((prev) => (prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]));
-    };
+    }, []);
 
-    const handleSelectAll = () => {
+    const handleSelectAll = useCallback(() => {
         if (selectedIds.length === filteredProducts.length && filteredProducts.length > 0) {
             setSelectedIds([]);
         } else {
             setSelectedIds(filteredProducts.map((p) => p._id));
         }
-    };
+    }, [filteredProducts, selectedIds.length]);
 
     const handleSave = async (form) => {
         if (!form.name.trim() || !form.price || !form.categoryId) {
@@ -533,7 +572,7 @@ const AdminProducts = () => {
                 toast.success('Cập nhật món ăn thành công');
             } else {
                 await createProductApi(form);
-                toast.success('Thiết lập món mới hoàn tất');
+                toast.success('Đã thêm món ăn');
             }
             setIsFormOpen(false);
             setEditingProduct(null);
@@ -587,7 +626,7 @@ const AdminProducts = () => {
                 <div className="space-y-1">
                     <h1 className="text-4xl font-black tracking-tight text-slate-900 dark:text-white">Thực đơn</h1>
                     <p className="text-slate-500 dark:text-slate-400 font-bold text-sm">
-                        Quản lý ma trận món ăn, cấu trúc giá và định lượng tồn kho vật lý.
+                        Quản lý món ăn, giá bán và số lượng tồn kho.
                     </p>
                 </div>
                 <div className="flex items-center gap-4 w-full lg:w-auto">

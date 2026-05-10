@@ -5,3 +5,5 @@ export { default as AboutUs } from './AboutUs.jsx';
 export { default as Booking } from './Booking.jsx';
 export { default as Invoice } from './Invoice.jsx';
 export { default as PaymentResult } from './PaymentResult.jsx';
+export { default as StaffHome } from './StaffHome.jsx';
+export { default as CustomerLanding } from './CustomerLanding.jsx';

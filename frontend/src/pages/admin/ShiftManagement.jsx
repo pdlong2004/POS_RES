@@ -148,7 +148,7 @@ const ShiftManagement = () => {
 
     const handleAutoSchedule = async () => {
         if (
-            !window.confirm('Bạn có muốn tự động lấp đầy lịch tuần này bằng AI? Các ca đã được gán sẽ được giữ nguyên.')
+            !window.confirm('Bạn có muốn tự động xếp ca cho tuần này? Các ca đã được gán sẽ được giữ nguyên.')
         )
             return;
 
@@ -185,7 +185,8 @@ const ShiftManagement = () => {
     };
 
     const getShiftColor = (shift) => {
-        if (!shift) return 'bg-slate-100 dark:bg-zinc-800 text-slate-400 dark:text-slate-500 border-slate-200 dark:border-zinc-700';
+        if (!shift)
+            return 'bg-slate-100 dark:bg-zinc-800 text-slate-400 dark:text-slate-500 border-slate-200 dark:border-zinc-700';
 
         const name = (shift.name || '').toLowerCase();
         const startHour = parseInt((shift.startTime || '00').split(':')[0]);
@@ -220,9 +221,11 @@ const ShiftManagement = () => {
             {/* PAGE HEADER */}
             <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-8 animate-in fade-in slide-in-from-top-4 duration-700">
                 <div className="space-y-1">
-                    <h1 className="text-4xl font-black tracking-tight text-slate-900 dark:text-white uppercase">Quản lý ca làm</h1>
+                    <h1 className="text-4xl font-black tracking-tight text-slate-900 dark:text-white uppercase">
+                        Quản lý ca làm
+                    </h1>
                     <p className="text-slate-500 dark:text-slate-400 font-bold text-sm italic">
-                        Tối ưu hóa nguồn lực nhân sự bằng thuật toán phân ca tự động AI.
+                        Tạo ca, phân ca và xem lịch làm việc theo tuần.
                     </p>
                 </div>
 
@@ -261,7 +264,7 @@ const ShiftManagement = () => {
                                 onClick={handleAutoSchedule}
                                 className="h-14 px-8 bg-orange-50 dark:bg-orange-950/20 hover:bg-orange-100 dark:hover:bg-orange-950/40 text-orange-600 dark:text-orange-400 border border-orange-100 dark:border-orange-900/30 rounded-2xl font-black uppercase tracking-widest text-xs transition-all flex items-center gap-3 shadow-lg shadow-orange-100/50 dark:shadow-none"
                             >
-                                <Sparkles size={18} /> AI Schedule
+                                <Sparkles size={18} /> Tự động xếp ca
                             </button>
                             <button
                                 onClick={() => setShowModal(true)}
@@ -277,7 +280,7 @@ const ShiftManagement = () => {
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
                 {/* SHIFTS REPOSITORY */}
                 <div className="lg:col-span-3 space-y-8 animate-in fade-in slide-in-from-left-4 duration-700 delay-100">
-                    <div className="admin-card p-0 border-white/40 dark:border-zinc-800/50 overflow-hidden rounded-[2.5rem] shadow-sm bg-white/30 dark:bg-zinc-900/30">
+                    <div className="admin-card p-0 border-white/40 dark:border-zinc-800/50 overflow-hidden rounded-2xl shadow-sm bg-white/30 dark:bg-zinc-900/30">
                         <div className="p-8 border-b border-slate-50 dark:border-zinc-800 bg-slate-50/30 dark:bg-zinc-800/20 flex items-center gap-4">
                             <div className="w-10 h-10 rounded-2xl bg-orange-600 flex items-center justify-center text-white shadow-lg shadow-orange-100 dark:shadow-none">
                                 <Clock size={18} />
@@ -291,7 +294,7 @@ const ShiftManagement = () => {
                                 <button
                                     key={s._id}
                                     onClick={() => handleShiftClick(s)}
-                                    className="w-full text-left group p-5 bg-white dark:bg-zinc-900 rounded-[2rem] border border-slate-100 dark:border-zinc-800 hover:border-orange-400 dark:hover:border-orange-500 hover:bg-orange-50/30 dark:hover:bg-orange-950/20 transition-all active:scale-[0.97] relative overflow-hidden shadow-sm"
+                                    className="w-full text-left group p-4 bg-white dark:bg-zinc-900 rounded-xl border border-slate-100 dark:border-zinc-800 hover:border-orange-400 dark:hover:border-orange-500 hover:bg-orange-50/30 dark:hover:bg-orange-950/20 transition-colors relative overflow-hidden shadow-sm"
                                 >
                                     <div className="absolute left-0 top-0 w-2 h-full bg-orange-600 opacity-0 group-hover:opacity-100 transition-opacity" />
                                     <p className="font-black text-slate-900 dark:text-white text-sm group-hover:text-orange-600 dark:group-hover:text-orange-500 transition-colors uppercase tracking-tight">
@@ -379,7 +382,7 @@ const ShiftManagement = () => {
 
                 {/* MAIN SCHEDULING INTERFACE */}
                 <div className="lg:col-span-9 animate-in fade-in slide-in-from-right-4 duration-700 delay-200">
-                    <div className="admin-card p-0 border-white/40 dark:border-zinc-800/50 overflow-hidden rounded-[2.5rem] shadow-sm bg-white/30 dark:bg-zinc-900/30">
+                    <div className="admin-card p-0 border-white/40 dark:border-zinc-800/50 overflow-hidden rounded-2xl shadow-sm bg-white/30 dark:bg-zinc-900/30">
                         <div className="overflow-x-auto scrollbar-hide">
                             <table className="w-full text-left border-collapse">
                                 <thead>
@@ -388,7 +391,9 @@ const ShiftManagement = () => {
                                             <div className="w-10 h-10 rounded-2xl bg-orange-600 flex items-center justify-center text-white shadow-lg dark:shadow-none">
                                                 <User size={20} />
                                             </div>
-                                            <span className="text-[10px] font-black text-slate-900 dark:text-white uppercase tracking-widest">Hồ sơ nhân sự</span>
+                                            <span className="text-[10px] font-black text-slate-900 dark:text-white uppercase tracking-widest">
+                                                Hồ sơ nhân sự
+                                            </span>
                                         </th>
                                         {weekDays.map((day, i) => (
                                             <th key={i} className="px-6 py-8 text-center min-w-[150px]">
@@ -420,7 +425,11 @@ const ShiftManagement = () => {
                                                     <div className="flex items-center gap-5">
                                                         <div className="w-12 h-12 rounded-2xl bg-orange-50 border border-orange-100 text-orange-600 flex items-center justify-center font-black text-xs shrink-0 group-hover:scale-110 transition-transform duration-500 overflow-hidden shadow-sm">
                                                             {s.image ? (
-                                                                <img src={s.image} alt="" className="w-full h-full object-cover" />
+                                                                <img
+                                                                    src={s.image}
+                                                                    alt=""
+                                                                    className="w-full h-full object-cover"
+                                                                />
                                                             ) : (
                                                                 s.name.charAt(0)
                                                             )}
@@ -445,14 +454,13 @@ const ShiftManagement = () => {
                                                                 isAdmin && 'cursor-pointer hover:bg-orange-50/50',
                                                             )}
                                                             onClick={() =>
-                                                                isAdmin &&
-                                                                setAssigningData({ staff: s, date: day })
+                                                                isAdmin && setAssigningData({ staff: s, date: day })
                                                             }
                                                         >
                                                             {assign ? (
                                                                 <div
                                                                     className={cn(
-                                                                        'inline-flex items-center justify-center w-full px-4 py-3 text-[10px] font-black rounded-2xl border shadow-sm transition-all hover:scale-105 active:scale-95 uppercase tracking-tighter',
+                                                                        'inline-flex items-center justify-center w-full px-4 py-3 text-[10px] font-black rounded-xl border shadow-sm transition-colors uppercase tracking-tighter',
                                                                         getShiftColor(assign.shiftId),
                                                                     )}
                                                                 >
@@ -485,9 +493,9 @@ const ShiftManagement = () => {
 
             {/* QUICK ASSIGN MODAL */}
             {assigningData && (
-                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm animate-in fade-in duration-300">
-                    <div className="bg-white dark:bg-zinc-900 w-full max-w-lg rounded-[3rem] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-500 border border-white dark:border-zinc-800">
-                        <div className="px-10 py-10 border-b border-slate-100 dark:border-zinc-800 flex justify-between items-center bg-slate-50/50 dark:bg-zinc-800/50">
+                <div className="fixed inset-0 z-[100] flex justify-end bg-slate-900/40 animate-in fade-in duration-150">
+                    <div className="h-full w-full max-w-lg bg-white dark:bg-zinc-900 shadow-2xl overflow-hidden animate-in slide-in-from-right duration-200 border-l border-slate-200 dark:border-zinc-800 flex flex-col">
+                        <div className="px-6 py-6 border-b border-slate-100 dark:border-zinc-800 flex justify-between items-center bg-white dark:bg-zinc-900">
                             <div className="flex items-center gap-5">
                                 <div className="w-14 h-14 rounded-2xl bg-orange-600 flex items-center justify-center text-white shadow-lg shadow-orange-100 dark:shadow-none">
                                     <CalendarDays size={28} />
@@ -509,7 +517,7 @@ const ShiftManagement = () => {
                                 <X size={24} />
                             </button>
                         </div>
-                        <div className="p-10 space-y-6 max-h-[500px] overflow-y-auto scrollbar-hide">
+                        <div className="flex-1 p-6 space-y-6 overflow-y-auto">
                             <p className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] text-center mb-4 italic">
                                 Lựa chọn khung giờ khả dụng:
                             </p>
@@ -552,7 +560,7 @@ const ShiftManagement = () => {
                                 )}
                             </div>
                         </div>
-                        <div className="p-10 bg-slate-50/50 dark:bg-zinc-800/50 border-t border-slate-100 dark:border-zinc-800">
+                        <div className="p-6 bg-slate-50 dark:bg-zinc-800/50 border-t border-slate-100 dark:border-zinc-800">
                             <button
                                 className="w-full h-16 rounded-2xl text-[10px] font-black text-slate-400 dark:text-slate-500 hover:text-orange-600 dark:hover:text-orange-500 hover:bg-orange-50 dark:hover:bg-zinc-700 transition-all uppercase tracking-[0.2em]"
                                 onClick={() => setAssigningData(null)}
@@ -566,9 +574,9 @@ const ShiftManagement = () => {
 
             {/* NEW SHIFT MODAL */}
             {showModal && (
-                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm animate-in fade-in duration-300">
-                    <div className="bg-white/95 dark:bg-zinc-900/95 backdrop-blur-xl w-full max-w-2xl rounded-[3.5rem] shadow-2xl overflow-hidden border border-white dark:border-zinc-800 animate-in zoom-in-95 duration-500 flex flex-col max-h-[90vh]">
-                        <div className="p-12 border-b border-slate-100 dark:border-zinc-800 flex items-center justify-between bg-white/50 dark:bg-zinc-800/50">
+                <div className="fixed inset-0 z-[100] flex justify-end bg-slate-900/40 animate-in fade-in duration-150">
+                    <div className="h-full w-full max-w-xl bg-white dark:bg-zinc-900 shadow-2xl overflow-hidden border-l border-slate-200 dark:border-zinc-800 animate-in slide-in-from-right duration-200 flex flex-col">
+                        <div className="p-6 border-b border-slate-100 dark:border-zinc-800 flex items-center justify-between bg-white dark:bg-zinc-900">
                             <div className="flex items-center gap-6">
                                 <div className="w-16 h-16 rounded-3xl bg-orange-600 flex items-center justify-center text-white shadow-xl shadow-orange-100 dark:shadow-none">
                                     <Zap size={32} />
@@ -591,7 +599,7 @@ const ShiftManagement = () => {
                         </div>
                         <form
                             onSubmit={handleCreateShift}
-                            className="flex-1 overflow-y-auto p-12 space-y-10 scrollbar-hide bg-white/50 dark:bg-zinc-900/50"
+                            className="flex-1 overflow-y-auto p-6 space-y-8 bg-white dark:bg-zinc-900"
                         >
                             <div className="space-y-4">
                                 <label className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest px-1">
@@ -650,10 +658,18 @@ const ShiftManagement = () => {
                                     value={newShift.type}
                                     onChange={(e) => setNewShift({ ...newShift, type: e.target.value })}
                                 >
-                                    <option value="morning" className="dark:bg-zinc-900">MORNING_SHIFT (Standard 06-12)</option>
-                                    <option value="afternoon" className="dark:bg-zinc-900">AFTERNOON_SHIFT (Standard 12-18)</option>
-                                    <option value="night" className="dark:bg-zinc-900">NIGHT_SHIFT (Standard 18-00)</option>
-                                    <option value="full" className="dark:bg-zinc-900">FULLTIME_SHIFT / SPLIT_SHIFT (Custom)</option>
+                                    <option value="morning" className="dark:bg-zinc-900">
+                                        MORNING_SHIFT (Standard 06-12)
+                                    </option>
+                                    <option value="afternoon" className="dark:bg-zinc-900">
+                                        AFTERNOON_SHIFT (Standard 12-18)
+                                    </option>
+                                    <option value="night" className="dark:bg-zinc-900">
+                                        NIGHT_SHIFT (Standard 18-00)
+                                    </option>
+                                    <option value="full" className="dark:bg-zinc-900">
+                                        FULLTIME_SHIFT / SPLIT_SHIFT (Custom)
+                                    </option>
                                 </select>
                             </div>
 
@@ -664,15 +680,15 @@ const ShiftManagement = () => {
                                 </div>
                                 <div>
                                     <p className="text-[10px] font-black text-orange-600 dark:text-orange-500 uppercase tracking-[0.2em] mb-2">
-                                        Hệ thống AI Insights
+                                        Ghi chú
                                     </p>
                                     <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed font-bold italic">
-                                        Dữ liệu ca làm mới sẽ được AI phân tích và tự động đưa vào ma trận tối ưu hóa lịch trình để đảm bảo hiệu suất vận hành cao nhất.
+                                        Ca làm mới sẽ xuất hiện trong danh sách để quản lý phân ca nhanh hơn.
                                     </p>
                                 </div>
                             </div>
                         </form>
-                        <div className="p-12 border-t border-slate-100 dark:border-zinc-800 bg-white/50 dark:bg-zinc-800/50 flex gap-6">
+                        <div className="p-6 border-t border-slate-100 dark:border-zinc-800 bg-slate-50 dark:bg-zinc-800/50 flex gap-4">
                             <button
                                 type="button"
                                 onClick={() => setShowModal(false)}
@@ -703,4 +719,3 @@ const ShiftManagement = () => {
 };
 
 export default ShiftManagement;
-

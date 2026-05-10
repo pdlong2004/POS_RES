@@ -9,17 +9,10 @@ import {
     CheckCircle2,
     ChevronLeft,
     ChevronRight,
-    XCircle,
     Timer,
-    Fingerprint,
     CalendarDays,
-    Zap,
-    ShieldCheck,
     RefreshCw,
     Briefcase,
-    MapPin,
-    ArrowRight,
-    Info,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -107,67 +100,58 @@ const StaffSchedule = () => {
     };
 
     return (
-        <AdminLayout className="space-y-12">
-            {/* PAGE HEADER */}
-            <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-8 animate-in fade-in slide-in-from-top-4 duration-700">
-                <div className="flex items-center gap-8">
-                    <div className="w-20 h-20 rounded-[2.5rem] bg-orange-50 border border-orange-100 flex items-center justify-center text-orange-600 shadow-xl shadow-orange-50/50 transition-transform hover:rotate-6">
-                        <Fingerprint size={40} />
-                    </div>
-                    <div>
-                        <h1 className="text-4xl font-black tracking-tight text-slate-900 uppercase">
-                            Lịch trình công tác
-                        </h1>
-                        <p className="text-slate-500 mt-1 font-bold italic text-sm">
-                            Quản lý thời gian biểu cá nhân và xác thực hiện diện qua hệ thống Check-in sinh
-                            trắc học.
-                        </p>
-                    </div>
+        <AdminLayout className="space-y-6">
+            <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+                <div>
+                    <h1 className="text-4xl font-black tracking-tight text-slate-900 dark:text-white uppercase">
+                        Lịch làm việc
+                    </h1>
+                    <p className="mt-1 text-sm font-bold text-slate-500 dark:text-slate-400">
+                        Xem ca được phân và chấm công trong tuần.
+                    </p>
                 </div>
 
-                <div className="flex flex-col sm:flex-row items-stretch sm:items-center bg-white border border-slate-100 rounded-[2rem] p-2 shadow-sm">
+                <div className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white p-1.5 dark:border-zinc-800 dark:bg-zinc-900">
                     <button
                         onClick={() => changeWeek(-1)}
-                        className="p-3 hover:bg-orange-50 text-slate-400 hover:text-orange-600 rounded-2xl transition-all active:scale-90"
+                        className="rounded-lg p-2 text-slate-500 transition-colors hover:bg-slate-100 hover:text-orange-600 dark:text-slate-400 dark:hover:bg-zinc-800"
+                        aria-label="Tuần trước"
                     >
-                        <ChevronLeft size={24} />
+                        <ChevronLeft size={20} />
                     </button>
-                    <div className="px-10 text-[11px] font-black text-slate-900 flex items-center gap-5 uppercase tracking-widest min-w-[320px] justify-center">
-                        <CalendarDays size={18} className="text-orange-600" />
+                    <div className="flex min-w-[220px] items-center justify-center gap-2 px-3 text-[11px] font-black uppercase tracking-widest text-slate-900 dark:text-white">
+                        <CalendarDays size={16} className="text-orange-600" />
                         <span>
                             {startDate.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit' })}
-                            <span className="mx-4 text-orange-200">/</span>
+                            <span className="mx-2 text-slate-300">-</span>
                             {weekDays[6].toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit' })}
                         </span>
                     </div>
                     <button
                         onClick={() => changeWeek(1)}
-                        className="p-3 hover:bg-orange-50 text-slate-400 hover:text-orange-600 rounded-2xl transition-all active:scale-90"
+                        className="rounded-lg p-2 text-slate-500 transition-colors hover:bg-slate-100 hover:text-orange-600 dark:text-slate-400 dark:hover:bg-zinc-800"
+                        aria-label="Tuần sau"
                     >
-                        <ChevronRight size={24} />
+                        <ChevronRight size={20} />
                     </button>
                 </div>
             </div>
 
-            {/* CONTENT GRID */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-200">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
                 {loading ? (
-                    <div className="col-span-full py-40 flex flex-col items-center justify-center">
-                        <RefreshCw size={48} className="text-orange-600 animate-spin mb-6" />
-                        <p className="text-slate-400 font-black uppercase tracking-[0.2em] text-[10px] animate-pulse">
-                            Đang truy xuất ma trận lịch trình Manwah...
-                        </p>
+                    <div className="col-span-full rounded-xl border border-slate-200 bg-white dark:border-zinc-800 dark:bg-zinc-950">
+                        <AdminLoading message="Đang tải lịch làm việc..." />
                     </div>
                 ) : schedule.length === 0 ? (
-                    <div className="col-span-full admin-card py-40 flex flex-col items-center justify-center bg-white/30 border-dashed border-2 border-slate-200 rounded-[3.5rem]">
-                        <div className="w-24 h-24 bg-slate-50 rounded-[2.5rem] flex items-center justify-center mb-8 border border-slate-100 shadow-inner opacity-40">
-                            <Clock size={48} strokeWidth={1} className="text-slate-900" />
+                    <div className="col-span-full flex min-h-[260px] flex-col items-center justify-center rounded-xl border border-dashed border-slate-300 bg-white text-center dark:border-zinc-700 dark:bg-zinc-900">
+                        <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-xl bg-slate-100 text-slate-400 dark:bg-zinc-800">
+                            <Clock size={28} />
                         </div>
-                        <p className="text-slate-900 font-black uppercase tracking-widest text-lg">
-                            Không có dữ liệu phân ca
+                        <p className="text-sm font-black uppercase tracking-widest text-slate-900 dark:text-white">
+                            Chưa có ca làm trong tuần này
                         </p>
-                        <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest mt-3 italic text-center leading-relaxed">
-                            Bạn không có lịch trình công tác nào được phân gán <br /> trong khoảng thời gian này.
+                        <p className="mt-2 text-xs font-bold text-slate-400 dark:text-slate-500">
+                            Vui lòng kiểm tra lại tuần khác hoặc liên hệ quản lý.
                         </p>
                     </div>
                 ) : (
@@ -181,161 +165,113 @@ const StaffSchedule = () => {
                             <div
                                 key={assign._id}
                                 className={cn(
-                                    'admin-card group transition-all duration-700 overflow-hidden relative bg-white/50 shadow-sm',
-                                    isToday && 'ring-2 ring-orange-600/20 border-orange-600/20 shadow-xl shadow-orange-100/50',
+                                    'rounded-xl border border-slate-200 bg-white p-5 shadow-sm dark:border-zinc-800 dark:bg-zinc-900',
+                                    isToday && 'border-orange-300 ring-2 ring-orange-100 dark:border-orange-700 dark:ring-orange-950/50',
                                 )}
                             >
-                                {isToday && (
-                                    <div className="absolute top-0 right-0 p-5">
-                                        <div className="flex items-center gap-2 bg-orange-600 text-white text-[9px] font-black uppercase tracking-widest px-4 py-1.5 rounded-full animate-pulse shadow-lg shadow-orange-200">
-                                            <Zap size={10} fill="currentColor" /> Today Active
-                                        </div>
+                                <div className="mb-4 flex items-start justify-between gap-4">
+                                    <div>
+                                        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500">
+                                            {dateObj.toLocaleDateString('vi-VN', { weekday: 'long' })}
+                                        </p>
+                                        <p className="mt-1 text-3xl font-black tracking-tight text-slate-900 dark:text-white">
+                                            {dateObj.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit' })}
+                                        </p>
                                     </div>
-                                )}
-
-                                <div className="p-8 space-y-10">
-                                    <div className="space-y-5">
-                                        <div className="space-y-1">
-                                            <p
-                                                className={cn(
-                                                    'text-[10px] font-black uppercase tracking-[0.2em]',
-                                                    isToday ? 'text-orange-600' : 'text-slate-400',
-                                                )}
-                                            >
-                                                {dateObj.toLocaleDateString('vi-VN', { weekday: 'long' })}
-                                            </p>
-                                            <p className="text-4xl font-black text-slate-900 tracking-tighter tabular-nums uppercase">
-                                                {dateObj.toLocaleDateString('vi-VN', {
-                                                    day: '2-digit',
-                                                    month: '2-digit',
-                                                })}
-                                            </p>
-                                        </div>
-
-                                        <div className="flex items-center gap-5 p-5 bg-white border border-slate-50 rounded-2xl shadow-sm group-hover:border-orange-100 transition-colors">
-                                            <div className="w-12 h-12 rounded-xl bg-orange-50 flex items-center justify-center text-orange-600 border border-orange-100 shrink-0">
-                                                <Briefcase size={22} />
-                                            </div>
-                                            <div className="min-w-0">
-                                                <h3 className="text-xs font-black text-slate-900 uppercase tracking-tight truncate">
-                                                    {assign.shiftId?.name || 'Ca công tác'}
-                                                </h3>
-                                                <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest mt-1 tabular-nums italic">
-                                                    {assign.shiftId?.startTime} <span className="text-orange-300 mx-1">→</span> {assign.shiftId?.endTime}
-                                                </p>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div className="space-y-5">
-                                        {hasCheckedOut ? (
-                                            <div className="p-6 bg-emerald-50 border border-emerald-100 rounded-3xl flex flex-col items-center gap-3 text-emerald-600 animate-in zoom-in-95 duration-500 shadow-sm">
-                                                <ShieldCheck size={32} />
-                                                <span className="text-[10px] font-black uppercase tracking-[0.2em]">
-                                                    Hoàn tất lộ trình
-                                                </span>
-                                            </div>
-                                        ) : (
-                                            <div className="grid grid-cols-1 gap-4">
-                                                <button
-                                                    disabled={hasCheckedIn || !isToday}
-                                                    onClick={() => handleCheckIn(assign._id)}
-                                                    className={cn(
-                                                        'w-full h-16 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-3 active:scale-95 disabled:opacity-50',
-                                                        hasCheckedIn
-                                                            ? 'bg-slate-50 text-slate-400 border border-slate-100'
-                                                            : isToday
-                                                              ? 'bg-orange-600 text-white shadow-xl shadow-orange-100 hover:bg-orange-700'
-                                                              : 'bg-slate-50 text-slate-200 border border-slate-100 cursor-not-allowed',
-                                                    )}
-                                                >
-                                                    {hasCheckedIn ? (
-                                                        <CheckCircle2 size={18} />
-                                                    ) : (
-                                                        <Zap size={18} />
-                                                    )}
-                                                    {hasCheckedIn ? 'Đã Check-in' : 'Kích hoạt Check-in'}
-                                                </button>
-
-                                                <button
-                                                    disabled={!hasCheckedIn || hasCheckedOut || !isToday}
-                                                    onClick={() => handleCheckOut(assign._id)}
-                                                    className={cn(
-                                                        'w-full h-16 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-3 border-2 active:scale-95 disabled:opacity-50',
-                                                        hasCheckedIn && !hasCheckedOut && isToday
-                                                            ? 'border-orange-600 text-orange-600 hover:bg-orange-50'
-                                                            : 'border-slate-100 text-slate-200 cursor-not-allowed',
-                                                    )}
-                                                >
-                                                    <Timer size={18} /> Kết thúc ca làm
-                                                </button>
-                                            </div>
-                                        )}
-
-                                        <div className="grid grid-cols-2 gap-4">
-                                            <div className="text-center p-4 bg-white border border-slate-50 rounded-2xl shadow-xs">
-                                                <p className="text-[9px] font-black text-slate-300 uppercase tracking-widest mb-1.5">
-                                                    Check-in
-                                                </p>
-                                                <p className="text-xs font-black text-slate-900 tabular-nums">
-                                                    {hasCheckedIn
-                                                        ? new Date(assign.checkIn).toLocaleTimeString(
-                                                              'vi-VN',
-                                                              { hour: '2-digit', minute: '2-digit' },
-                                                          )
-                                                        : '--:--'}
-                                                </p>
-                                            </div>
-                                            <div className="text-center p-4 bg-white border border-slate-50 rounded-2xl shadow-xs">
-                                                <p className="text-[9px] font-black text-slate-300 uppercase tracking-widest mb-1.5">
-                                                    Check-out
-                                                </p>
-                                                <p className="text-xs font-black text-slate-900 tabular-nums">
-                                                    {hasCheckedOut
-                                                        ? new Date(assign.checkOut).toLocaleTimeString(
-                                                              'vi-VN',
-                                                              { hour: '2-digit', minute: '2-digit' },
-                                                          )
-                                                        : '--:--'}
-                                                </p>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div className="flex items-center justify-between text-[10px] font-black text-slate-300 uppercase tracking-widest pt-5 border-t border-slate-50">
-                                        <span className="flex items-center gap-2 group-hover:text-orange-400 transition-colors">
-                                            <MapPin size={12} /> Zone A-01
+                                    {isToday && (
+                                        <span className="rounded-full bg-orange-50 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-orange-600 dark:bg-orange-950/30 dark:text-orange-400">
+                                            Hôm nay
                                         </span>
-                                        <span>Verified Manwah</span>
+                                    )}
+                                </div>
+
+                                <div className="mb-5 flex items-center gap-3 rounded-lg bg-slate-50 p-3 dark:bg-zinc-800/60">
+                                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-white text-orange-600 dark:bg-zinc-900">
+                                        <Briefcase size={20} />
+                                    </div>
+                                    <div className="min-w-0">
+                                        <h3 className="truncate text-sm font-black uppercase tracking-tight text-slate-900 dark:text-white">
+                                            {assign.shiftId?.name || 'Ca làm'}
+                                        </h3>
+                                        <p className="mt-1 text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500">
+                                            {assign.shiftId?.startTime} - {assign.shiftId?.endTime}
+                                        </p>
                                     </div>
                                 </div>
+
+                                <div className="mb-5 grid grid-cols-2 gap-3">
+                                    <div className="rounded-lg border border-slate-200 p-3 dark:border-zinc-800">
+                                        <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500">Check-in</p>
+                                        <p className="mt-1 text-sm font-black text-slate-900 dark:text-white">
+                                            {hasCheckedIn
+                                                ? new Date(assign.checkIn).toLocaleTimeString('vi-VN', {
+                                                      hour: '2-digit',
+                                                      minute: '2-digit',
+                                                  })
+                                                : '--:--'}
+                                        </p>
+                                    </div>
+                                    <div className="rounded-lg border border-slate-200 p-3 dark:border-zinc-800">
+                                        <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500">Check-out</p>
+                                        <p className="mt-1 text-sm font-black text-slate-900 dark:text-white">
+                                            {hasCheckedOut
+                                                ? new Date(assign.checkOut).toLocaleTimeString('vi-VN', {
+                                                      hour: '2-digit',
+                                                      minute: '2-digit',
+                                                  })
+                                                : '--:--'}
+                                        </p>
+                                    </div>
+                                </div>
+
+                                {hasCheckedOut ? (
+                                    <div className="flex items-center justify-center gap-2 rounded-lg bg-emerald-50 py-3 text-xs font-black uppercase tracking-widest text-emerald-700 dark:bg-emerald-950/20 dark:text-emerald-400">
+                                        <CheckCircle2 size={18} />
+                                        Đã hoàn tất ca
+                                    </div>
+                                ) : (
+                                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                                        <button
+                                            disabled={hasCheckedIn || !isToday}
+                                            onClick={() => handleCheckIn(assign._id)}
+                                            className={cn(
+                                                'inline-flex h-11 items-center justify-center gap-2 rounded-lg text-xs font-black uppercase tracking-widest transition-colors disabled:cursor-not-allowed disabled:opacity-50',
+                                                hasCheckedIn
+                                                    ? 'border border-slate-200 bg-slate-50 text-slate-500 dark:border-zinc-800 dark:bg-zinc-800'
+                                                    : isToday
+                                                      ? 'bg-orange-600 text-white hover:bg-orange-700'
+                                                      : 'border border-slate-200 bg-slate-50 text-slate-400 dark:border-zinc-800 dark:bg-zinc-800',
+                                            )}
+                                        >
+                                            <CheckCircle2 size={17} />
+                                            {hasCheckedIn ? 'Đã vào ca' : 'Vào ca'}
+                                        </button>
+
+                                        <button
+                                            disabled={!hasCheckedIn || hasCheckedOut || !isToday}
+                                            onClick={() => handleCheckOut(assign._id)}
+                                            className="inline-flex h-11 items-center justify-center gap-2 rounded-lg border border-slate-200 text-xs font-black uppercase tracking-widest text-slate-700 transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-zinc-800 dark:text-slate-300 dark:hover:bg-zinc-800"
+                                        >
+                                            <Timer size={17} />
+                                            Ra ca
+                                        </button>
+                                    </div>
+                                )}
                             </div>
                         );
                     })
                 )}
             </div>
 
-            {/* SYSTEM ADVISORY */}
-            <div className="p-10 bg-orange-600 rounded-[3.5rem] flex flex-col md:flex-row items-center gap-10 relative overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-700 delay-300 shadow-2xl shadow-orange-100">
-                <div className="absolute top-0 right-0 w-80 h-80 bg-white/10 rounded-full -mr-40 -mt-40 blur-[80px]" />
-                <div className="w-20 h-20 rounded-[2.5rem] bg-white/20 backdrop-blur-xl flex items-center justify-center text-white shrink-0 shadow-2xl border border-white/30">
-                    <ShieldCheck size={40} />
-                </div>
-                <div className="space-y-3 text-center md:text-left relative z-10 flex-1">
-                    <h3 className="text-xl font-black text-white uppercase tracking-tight">
-                        Giao thức bảo mật & Chấm công Manwah
-                    </h3>
-                    <p className="text-sm text-orange-100 leading-relaxed font-bold italic opacity-90">
-                        Vui lòng thực hiện Check-in / Check-out trong phạm vi mạng nội bộ (WLAN) của nhà
-                        hàng để đảm bảo tính xác thực. Mọi dữ liệu sai lệch sẽ được chuyển tiếp đến bộ phận
-                        nhân sự để thẩm định định danh sinh trắc học.
-                    </p>
-                </div>
+            <div className="flex flex-col gap-3 rounded-xl border border-orange-100 bg-orange-50 p-4 dark:border-orange-900/30 dark:bg-orange-950/20 sm:flex-row sm:items-center sm:justify-between">
+                <p className="text-sm font-bold text-orange-800 dark:text-orange-300">
+                    Chỉ có thể vào ca và ra ca trong ngày làm việc hiện tại.
+                </p>
                 <button
                     onClick={fetchSchedule}
-                    className="h-16 px-10 bg-white text-orange-600 rounded-2xl flex items-center gap-3 font-black uppercase tracking-widest text-xs shadow-2xl transition-all active:scale-95 hover:bg-slate-50"
+                    className="inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-white px-4 text-xs font-black uppercase tracking-widest text-orange-700 shadow-sm transition-colors hover:bg-orange-100 dark:bg-zinc-900 dark:text-orange-300 dark:hover:bg-zinc-800"
                 >
-                    <RefreshCw size={20} /> Đồng bộ hệ thống
+                    <RefreshCw size={16} /> Làm mới lịch
                 </button>
             </div>
         </AdminLayout>

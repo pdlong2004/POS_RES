@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import AdminLayout from '@/components/admin/shared/AdminLayout';
+import AdminLoading from '@/components/admin/shared/AdminLoading';
 import StatsChart from '@/components/admin/Dashboard/StatsChart';
 import ReportMetricCards from '@/components/admin/Dashboard/ReportMetricCards';
 import DistributionCharts from '@/components/admin/Dashboard/DistributionCharts';
@@ -47,14 +48,8 @@ const AdminReports = () => {
 
     if (loading) {
         return (
-            <AdminLayout className="flex flex-col items-center justify-center py-40">
-                <div className="relative">
-                    <div className="w-16 h-16 border-4 border-orange-500/10 rounded-full" />
-                    <div className="absolute inset-0 w-16 h-16 border-4 border-orange-600 border-t-transparent rounded-full animate-spin" />
-                </div>
-                <p className="text-slate-400 font-black uppercase tracking-[0.2em] text-xs mt-8 animate-pulse">
-                    Đang ánh xạ thực thể kinh doanh...
-                </p>
+            <AdminLayout>
+                <AdminLoading message="Đang tải báo cáo..." />
             </AdminLayout>
         );
     }
@@ -69,10 +64,10 @@ const AdminReports = () => {
                     </div>
                     <div>
                         <h1 className="text-4xl font-black tracking-tight text-slate-900 dark:text-white uppercase">
-                            Báo cáo Intelligence
+                            Báo cáo
                         </h1>
                         <p className="text-slate-500 dark:text-slate-400 font-bold text-sm italic">
-                            Trích xuất tri thức từ dữ liệu vận hành thực tế của doanh nghiệp.
+                            Theo dõi doanh thu, sản phẩm bán chạy và hình thức thanh toán.
                         </p>
                     </div>
                 </div>
@@ -113,12 +108,11 @@ const AdminReports = () => {
                                         <TrendingUp size={18} />
                                     </div>
                                     <span className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-widest">
-                                        Phân tích dòng tiền doanh thu
+                                        Doanh thu
                                     </span>
                                 </div>
                                 <div className="flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                                    <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" /> Xu hướng 30
-                                    ngày qua
+                                    <div className="w-2 h-2 rounded-full bg-emerald-500" /> 30 ngày qua
                                 </div>
                             </div>
                             <div className="p-8">
@@ -133,7 +127,7 @@ const AdminReports = () => {
                                     <PieChart size={18} />
                                 </div>
                                 <span className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-widest">
-                                    Phân bổ danh mục & Hình thức thanh toán
+                                    Danh mục & thanh toán
                                 </span>
                             </div>
                             <div className="p-8">
@@ -153,7 +147,7 @@ const AdminReports = () => {
                                     <Zap size={18} />
                                 </div>
                                 <span className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-widest">
-                                    Thực đơn thịnh hành
+                                    Sản phẩm bán chạy
                                 </span>
                             </div>
                             <div className="p-8">
@@ -163,28 +157,13 @@ const AdminReports = () => {
                     </div>
                 </div>
 
-                {/* ADVISORY BANNER */}
-                <div className="p-10 bg-orange-600 rounded-[3rem] border border-orange-400 flex flex-col md:flex-row items-center justify-between gap-10 group relative overflow-hidden shadow-2xl shadow-orange-200">
-                    <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -mr-32 -mt-32 blur-3xl pointer-events-none" />
-                    <div className="absolute bottom-0 left-0 w-64 h-64 bg-orange-400/20 rounded-full -ml-32 -mb-32 blur-3xl pointer-events-none" />
-
-                    <div className="flex items-center gap-8 relative z-10">
-                        <div className="w-20 h-20 rounded-[2rem] bg-white/20 backdrop-blur-xl border border-white/30 flex items-center justify-center text-white group-hover:scale-110 transition-transform duration-500 shadow-xl">
-                            <Sparkles size={32} />
-                        </div>
-                        <div className="max-w-2xl">
-                            <h4 className="text-2xl font-black text-white tracking-tight uppercase">
-                                Tự động hóa báo cáo định kỳ?
-                            </h4>
-                            <p className="text-orange-100 font-bold text-sm mt-1">
-                                Hệ thống sẽ tự động tổng hợp và gửi báo cáo phân tích PDF qua email quản trị vào lúc
-                                23:59 mỗi ngày.
-                            </p>
-                        </div>
-                    </div>
-                    <button className="h-16 px-12 bg-white text-orange-600 hover:bg-slate-50 transition-all uppercase font-black text-xs tracking-widest rounded-2xl shadow-xl shadow-orange-900/20 active:scale-95 relative z-10">
-                        Kích hoạt ngay
-                    </button>
+                <div className="rounded-2xl border border-orange-100 bg-orange-50 p-6 dark:border-orange-900/30 dark:bg-orange-950/20">
+                    <h4 className="text-sm font-black uppercase tracking-widest text-orange-700 dark:text-orange-300">
+                        Gợi ý vận hành
+                    </h4>
+                    <p className="mt-2 text-sm font-bold text-orange-800 dark:text-orange-300">
+                        Có thể xuất báo cáo để lưu hoặc gửi cho quản lý ca cuối ngày.
+                    </p>
                 </div>
             </div>
         </AdminLayout>

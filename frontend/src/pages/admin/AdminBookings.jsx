@@ -219,11 +219,8 @@ const AdminBookings = () => {
             {/* CONTENT GRID */}
             <div className="animate-in fade-in slide-in-from-bottom-4 duration-700 delay-200">
                 {loading ? (
-                    <div className="py-32 flex flex-col items-center justify-center gap-4">
-                        <RefreshCw className="h-8 w-8 text-orange-600 dark:text-orange-500 animate-spin" />
-                        <p className="text-slate-400 dark:text-slate-500 font-bold uppercase tracking-widest text-xs animate-pulse">
-                            Đang tải dữ liệu...
-                        </p>
+                    <div className="admin-card bg-white dark:bg-zinc-950">
+                        <AdminLoading message="Đang tải đặt bàn..." />
                     </div>
                 ) : filteredBookings.length === 0 ? (
                     <div className="admin-card py-32 flex flex-col items-center justify-center bg-white/30 dark:bg-zinc-900/30 border-white dark:border-zinc-800 rounded-[3rem]">

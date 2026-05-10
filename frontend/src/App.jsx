@@ -6,7 +6,7 @@ import { AuthProvider } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
 import ProtectedRoute from './components/admin/shared/ProtectedRoute';
 import ScrollToTop from './components/ui/ScrollToTop';
-import { Loader2 } from 'lucide-react';
+import AdminLoading from './components/admin/shared/AdminLoading';
 
 // ========================
 // 🚀 PERFORMANCE: LAZY LOADING
@@ -23,13 +23,14 @@ const Invoice = lazy(() => import('./pages/client').then((m) => ({ default: m.In
 const PaymentResult = lazy(() => import('./pages/client').then((m) => ({ default: m.PaymentResult })));
 const TableLogin = lazy(() => import('./pages/client/TableLogin'));
 const ScanQR = lazy(() => import('./pages/client/ScanQR'));
+const StaffHome = lazy(() => import('./pages/client').then((m) => ({ default: m.StaffHome })));
+const CustomerLanding = lazy(() => import('./pages/client').then((m) => ({ default: m.CustomerLanding })));
 
 // Admin Pages
 const Login = lazy(() => import('./pages/admin/Login'));
 const Dashboard = lazy(() => import('./pages/admin/Dashboard'));
 const AdminOrders = lazy(() => import('./pages/admin/Orders'));
 const AdminTables = lazy(() => import('./pages/admin/AdminTables'));
-
 const AdminProducts = lazy(() => import('./pages/admin/AdminProducts'));
 const AdminBookings = lazy(() => import('./pages/admin/AdminBookings'));
 const Unauthorized = lazy(() => import('./pages/admin/Unauthorized'));
@@ -45,43 +46,7 @@ const ShiftManagement = lazy(() => import('./pages/admin/ShiftManagement'));
 const StaffSchedule = lazy(() => import('./pages/admin/StaffSchedule'));
 const AttendanceManagement = lazy(() => import('./pages/admin/AttendanceManagement'));
 
-// Global Loading Fallback
-const LoadingScreen = () => (
-    <div className="h-screen w-full flex flex-col items-center justify-center bg-white text-slate-900">
-        <div className="relative">
-            {/* Outer Ring */}
-            <div className="w-20 h-20 rounded-full border-4 border-orange-50 animate-spin border-t-orange-600" />
-            
-            {/* Inner Logo */}
-            <div className="absolute inset-0 flex items-center justify-center">
-                <div className="w-10 h-10 bg-white rounded-2xl shadow-lg flex items-center justify-center animate-pulse">
-                    <img 
-                        src="https://manwah.com.vn/images/logo/manwah.svg" 
-                        alt="Manwah" 
-                        className="w-6 h-6 object-contain"
-                    />
-                </div>
-            </div>
-            
-            {/* Decorative Glow */}
-            <div className="absolute -inset-4 bg-orange-500/10 blur-2xl rounded-full -z-10 animate-pulse" />
-        </div>
-        <div className="mt-8 text-center space-y-2">
-            <p className="text-slate-900 font-black uppercase tracking-[0.3em] text-[11px] animate-pulse">
-                Đang tải ứng dụng...
-            </p>
-            <div className="flex justify-center gap-1.5">
-                {[0, 1, 2].map((i) => (
-                    <div 
-                        key={i}
-                        className="w-1.5 h-1.5 rounded-full bg-orange-600 animate-bounce"
-                        style={{ animationDelay: `${i * 0.15}s` }}
-                    />
-                ))}
-            </div>
-        </div>
-    </div>
-);
+const LoadingScreen = () => <AdminLoading fullScreen message="Đang tải ứng dụng..." />;
 
 function App() {
     return (
@@ -93,7 +58,16 @@ function App() {
                             <ScrollToTop />
                             <Suspense fallback={<LoadingScreen />}>
                                 <Routes>
-                                    <Route path="/" element={<Home />} />
+                                    <Route path="/" element={<CustomerLanding />} />
+                                    <Route path="/home" element={<Home />} />
+                                    <Route
+                                        path="/staff"
+                                        element={
+                                            <ProtectedRoute allowedRoles={['admin', 'cashier', 'waiter', 'chef', 'staff']}>
+                                                <StaffHome />
+                                            </ProtectedRoute>
+                                        }
+                                    />
                                     <Route path="/orders" element={<Orders />} />
                                     <Route path="/menu" element={<Menu />} />
                                     <Route path="/about" element={<AboutUs />} />
@@ -122,7 +96,6 @@ function App() {
                                             element: <AdminTables />,
                                             roles: ['admin', 'cashier', 'waiter', 'chef', 'staff'],
                                         },
-
                                         {
                                             path: '/admin/products',
                                             element: <AdminProducts />,
@@ -178,4 +151,3 @@ function App() {
 }
 
 export default App;
-

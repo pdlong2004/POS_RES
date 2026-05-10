@@ -174,11 +174,8 @@ const AdminTables = () => {
             {/* GRID SECTION */}
             <div className="animate-in fade-in slide-in-from-bottom-4 duration-700 delay-200">
                 {loading ? (
-                    <div className="py-40 flex flex-col items-center justify-center">
-                        <RefreshCw size={48} className="text-orange-600 dark:text-orange-500 animate-spin mb-6" />
-                        <p className="text-slate-400 dark:text-slate-500 font-black uppercase tracking-[0.2em] text-[10px] animate-pulse">
-                            Đang ánh xạ sơ đồ bàn Manwah...
-                        </p>
+                    <div className="admin-card bg-white dark:bg-zinc-950">
+                        <AdminLoading message="Đang tải sơ đồ bàn..." />
                     </div>
                 ) : tables.length === 0 ? (
                     <div className="admin-card py-40 flex flex-col items-center justify-center bg-white/30 dark:bg-zinc-900/30 border-dashed border-2 border-slate-200 dark:border-zinc-800">

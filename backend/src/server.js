@@ -45,7 +45,7 @@ const frontendPath = path.join(__dirname, '../../../frontend/dist');
 app.use(express.static(frontendPath));
 
 // Handle SPA routing
-app.get('/*', (req, res) => {
+app.get('*all', (req, res) => {
     res.sendFile(path.join(frontendPath, 'index.html'));
 });
 

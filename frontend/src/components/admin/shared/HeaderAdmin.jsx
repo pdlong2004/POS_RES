@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, memo } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import api from '@/lib/axois';
 import {
     LogOut,
     Bell,
@@ -130,7 +130,7 @@ const HeaderAdmin = () => {
     const fetchSearchData = async () => {
         if (allProducts.length > 0) return;
         try {
-            const res = await axios.get('http://localhost:5001/api/products');
+            const res = await api.get('/products');
             setAllProducts(res.data.data || res.data || []);
         } catch (error) {
             console.error('Search data fetch failed', error);
@@ -444,4 +444,3 @@ const HeaderAdmin = () => {
 };
 
 export default memo(HeaderAdmin);
-

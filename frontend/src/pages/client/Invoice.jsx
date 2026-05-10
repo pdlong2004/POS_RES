@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import api from '../../lib/axois';
 import { getStatusTablesApi } from '@/service/statusTable.service';
 import { updateTableStatusApi } from '@/service/table.service';
 import Header from '../../components/client/shared/Header';
@@ -46,7 +46,7 @@ const Invoice = () => {
     const fetchInvoices = async () => {
         try {
             setLoading(true);
-            const res = await axios.get(`http://localhost:5001/api/invoices`, {
+            const res = await api.get(`/invoices`, {
                 params: { tableId: tableInfo._id, paymentStatus: 'pending' },
             });
             if (res.data.success) setInvoices(res.data.data || []);
@@ -67,7 +67,7 @@ const Invoice = () => {
             setLoading(true);
 
             if (paymentMethod === 'vnpay') {
-                const res = await axios.post(`http://localhost:5001/api/vnpay/create_payment_url`, {
+                const res = await api.post(`/vnpay/create_payment_url`, {
                     invoiceId: invoice._id,
                 });
                 if (res.data?.paymentUrl) {
@@ -79,7 +79,7 @@ const Invoice = () => {
                 }
             }
 
-            const res = await axios.put(`http://localhost:5001/api/invoices/${invoice._id}/pay`, {
+            const res = await api.put(`/invoices/${invoice._id}/pay`, {
                 paymentMethod,
             });
 

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../../../lib/axois';
 import { getStatusTablesApi } from '@/service/statusTable.service';
 import { updateTableStatusApi } from '@/service/table.service';
 import { NavLink, useNavigate, useLocation } from 'react-router-dom';
@@ -33,7 +33,7 @@ const Header = () => {
     const handleTableLogout = async () => {
         try {
             if (tableInfo?._id) {
-                await axios.post('http://localhost:5001/api/invoices/close', { tableId: tableInfo._id });
+                await api.post('/invoices/close', { tableId: tableInfo._id });
                 try {
                     const statuses = await getStatusTablesApi();
                     const list = statuses?.data ?? [];
